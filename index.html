@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>КД ЧД — Соцсеть</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000000;
+            color: #e0e0e0;
+        }
+        .app-container { display: flex; max-width: 1300px; margin: 0 auto; min-height: 100vh; }
+        
+        /* ЛЕВАЯ ПАНЕЛЬ */
+        .sidebar {
+            width: 260px;
+            padding: 30px 20px;
+            border-right: 1px solid #2c2c2c;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .logo { font-size: 28px; font-weight: 800; margin-bottom: 40px; background: linear-gradient(135deg, #fff, #1d9bf0); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .nav-item { padding: 12px 16px; margin: 4px 0; border-radius: 12px; cursor: pointer; color: #aaa; transition: 0.2s; }
+        .nav-item:hover, .nav-item.active { background: #1a1a1a; color: white; }
+        .bottom-links { margin-top: 40px; padding-top: 20px; border-top: 1px solid #2c2c2c; font-size: 12px; color: #555; }
+        .bottom-links div { margin: 8px 0; cursor: pointer; }
+        .logout-btn { margin-top: 20px; padding: 10px; background: #1a1a1a; border: none; border-radius: 12px; color: #ff4444; cursor: pointer; width: 100%; }
+        
+        /* ЦЕНТР */
+        .center-panel { flex: 1; max-width: 600px; padding: 20px; border-right: 1px solid #2c2c2c; }
+        
+        /* ПРАВАЯ ПАНЕЛЬ */
+        .right-panel { width: 320px; padding: 30px 20px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+        
+        .card { background: #121212; border-radius: 16px; padding: 16px; margin-bottom: 16px; border: 1px solid #2c2c2c; }
+        .card-title { font-weight: 700; margin-bottom: 12px; }
+        
+        .post { background: #121212; border-radius: 16px; padding: 16px; margin-bottom: 16px; border: 1px solid #2c2c2c; }
+        .post-header { display: flex; gap: 12px; margin-bottom: 12px; }
+        .post-avatar { width: 48px; height: 48px; border-radius: 50%; background: #333; overflow: hidden; }
+        .post-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .post-author { font-weight: 700; }
+        .verified { color: #1d9bf0; }
+        .post-actions { display: flex; gap: 24px; margin-top: 12px; color: #777; cursor: pointer; }
+        .post-actions span:hover { color: #1d9bf0; }
+        
+        input, textarea, select { width: 100%; padding: 12px; background: #1a1a1a; border: 1px solid #333; border-radius: 12px; color: white; margin: 8px 0; }
+        button { background: #1d9bf0; color: white; border: none; padding: 10px 20px; border-radius: 24px; font-weight: 600; cursor: pointer; }
+        
+        .profile-avatar { width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 15px; overflow: hidden; }
+        .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-name { font-size: 22px; font-weight: 700; text-align: center; }
+        .profile-username { text-align: center; color: #888; }
+        .profile-stats { display: flex; justify-content: center; gap: 30px; margin: 20px 0; text-align: center; }
+        .profile-tabs { display: flex; gap: 20px; border-bottom: 1px solid #2c2c2c; margin-bottom: 20px; }
+        .profile-tab { padding: 12px 0; cursor: pointer; color: #888; }
+        .profile-tab.active { color: white; border-bottom: 2px solid #1d9bf0; }
+        
+        .clan-rank, .hashtag-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #2c2c2c; }
+        .hidden { display: none; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        .online-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #22c55e; margin-left: 6px; box-shadow: 0 0 5px #22c55e; }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div class="sidebar">
+        <div>
+            <div class="logo">КД ЧД</div>
+            <div class="nav-item active" data-page="feed">📱 Лента</div>
+            <div class="nav-item" data-page="search">🔍 Поиск</div>
+            <div class="nav-item" data-page="ident">🆔 Идент</div>
+            <div class="nav-item" data-page="notifications">🔔 Уведомления</div>
+            <div class="nav-item" data-page="profile">👤 Профиль</div>
+        </div>
+        <div>
+            <div class="bottom-links">
+                <div>Статус серверов</div>
+                <div>Условия использования</div>
+                <div>Конфиденциальность</div>
+                <div>Политика Cookies</div>
+                <div style="margin-top: 10px;">© 2026 ООО «КД ЧД»</div>
+            </div>
+            <button class="logout-btn" id="logoutBtn">Выйти</button>
+        </div>
+    </div>
+
+    <div class="center-panel" id="centerPanel">
+        <div id="authScreen">
+            <div class="card" style="text-align: center;">
+                <h2>КД ЧД</h2>
+                <p style="color: #888;">Короткий День — Чёткий День</p>
+                <div id="loginForm">
+                    <input type="text" id="loginUsername" placeholder="Логин">
+                    <input type="password" id="loginPassword" placeholder="Пароль">
+                    <button id="doLogin">Войти</button>
+                    <p style="margin-top: 15px;"><span id="showRegBtn" style="color: #1d9bf0; cursor: pointer;">Создать аккаунт</span></p>
+                    <div id="authError" style="color: #ff4444;"></div>
+                </div>
+                <div id="regForm" class="hidden">
+                    <input type="text" id="regUsername" placeholder="Логин">
+                    <input type="email" id="regEmail" placeholder="Почта">
+                    <input type="password" id="regPassword" placeholder="Пароль">
+                    <select id="regClan">
+                        <option value="⚔️">⚔️ Мечники</option><option value="🛡️">🛡️ Стражи</option>
+                        <option value="🔥">🔥 Пламенные</option><option value="🌊">🌊 Волны</option>
+                        <option value="🎨">🎨 Краски</option><option value="🚀">🚀 Звёздные</option>
+                        <option value="🐉">🐉 Драконы</option><option value="👑">👑 Имперцы</option>
+                    </select>
+                    <input type="text" id="regClanName" placeholder="Название клана">
+                    <div id="codeBlock" class="hidden"><input type="text" id="regCode" placeholder="Код из письма"></div>
+                    <button id="doReg">Зарегистрироваться</button>
+                    <p style="margin-top: 15px;"><span id="showLoginBtn" style="color: #1d9bf0; cursor: pointer;">← Назад</span></p>
+                    <div id="regError" style="color: #ff4444;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="mainContent" class="hidden">
+            <div id="feedPage">
+                <div class="card">
+                    <textarea id="postText" rows="2" placeholder="Что нового?"></textarea>
+                    <div class="flex-between" style="margin-top: 10px;">
+                        <div style="display: flex; gap: 8px;">
+                            <button type="button" id="voiceBtn" style="background: #333;">🎙️ Голос</button>
+                            <input type="file" id="fileInput" accept="image/*,video/*" style="display: none;">
+                            <button type="button" id="attachBtn" style="background: #333;">📎 Медиа</button>
+                        </div>
+                        <button id="publishBtn">Отправить</button>
+                    </div>
+                    <div id="voiceStatus" style="font-size: 12px; color: #1d9bf0;"></div>
+                </div>
+                <div id="postsList"></div>
+            </div>
+            <div id="searchPage" class="hidden">
+                <div class="card"><input type="text" id="searchInput" placeholder="Поиск людей и хештегов"></div>
+                <div class="card"><div class="card-title">Топ кланов</div><div id="topClans"></div></div>
+                <div class="card"><div class="card-title">Популярные хештеги</div><div id="topHashtags"></div></div>
+            </div>
+            <div id="identPage" class="hidden">
+                <div class="card" style="text-align: center;">
+                    <div style="font-size: 48px;">🆔</div>
+                    <div style="font-size: 20px; font-weight: 700;" id="identId">----</div>
+                </div>
+            </div>
+            <div id="notificationsPage" class="hidden">
+                <div class="card"><div class="card-title">Уведомления</div><div id="notificationsList" style="color: #888;">Нет уведомлений</div></div>
+            </div>
+            <div id="profilePage" class="hidden">
+                <div class="card">
+                    <div class="profile-avatar"><img id="profileAvatarImg" src=""></div>
+                    <div class="profile-name" id="profileName"></div>
+                    <div class="profile-username" id="profileUsername"></div>
+                    <div class="profile-stats">
+                        <div><div class="number">0</div><div>подписчиков</div></div>
+                        <div><div class="number">0</div><div>подписок</div></div>
+                        <div><div>регистрация: <span id="regDate">май 2026</span></div></div>
+                    </div>
+                    <div class="profile-tabs">
+                        <div class="profile-tab active" data-tab="userPosts">Посты</div>
+                        <div class="profile-tab" data-tab="userLikes">Лайки</div>
+                    </div>
+                    <div id="userPostsList"></div>
+                    <div id="userLikesList" class="hidden"></div>
+                </div>
+                <div class="card">
+                    <input type="file" id="avatarInput" accept="image/*">
+                    <button id="changeAvatarBtn" style="margin-top: 10px; width: 100%;">Сменить аватар</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="right-panel">
+        <div class="card"><div class="card-title">📊 Сейчас в сети</div><div style="font-size: 28px; font-weight: 700;" id="onlineCount">1</div></div>
+        <div class="card"><div class="card-title">Что нового?</div><div>КД ЧД — соцсеть без ЛС 🔥</div></div>
+        <div class="card"><div class="card-title">Топ кланов</div><div id="rightClans"></div></div>
+        <div class="card"><div class="card-title">Популярное</div><div id="rightHashtags"></div></div>
+    </div>
+</div>
+
+<script>
+    let currentUser = null;
+    let users = JSON.parse(localStorage.getItem('kdchd_users')) || [];
+    let posts = JSON.parse(localStorage.getItem('kdchd_posts')) || [];
+    let avatars = JSON.parse(localStorage.getItem('kdchd_avatars')) || {};
+    let verifiedUsers = ['arthur', 'official'];
+
+    if (!users.find(u => u.username === 'arthur')) {
+        users.push({ username: 'arthur', password: 'ankuhin', email: 'arthur@kdchd.com', clanEmoji: '👑', clanName: 'СОЗДАТЕЛЬ', regDate: 'май 2026' });
+    }
+    if (!users.find(u => u.username === 'official')) {
+        users.push({ username: 'official', password: '123', email: 'off@kdchd.com', clanEmoji: '✅', clanName: 'ОФИЦИАЛ', regDate: 'май 2026' });
+    }
+    if (!users.find(u => u.username === 'demo')) {
+        users.push({ username: 'demo', password: '1', email: 'demo@test.com', clanEmoji: '🔥', clanName: 'Тестер', regDate: 'май 2026' });
+    }
+    if (posts.length === 0) {
+        posts.push({ id: 1, author: 'arthur', text: 'Добро пожаловать в КД ЧД! 🔥 Без ЛС, только вайб.', likes: 5, comments: [], date: new Date().toLocaleString() });
+        posts.push({ id: 2, author: 'official', text: 'Официальный аккаунт. Всем привет! ✅', likes: 3, comments: [], date: new Date().toLocaleString() });
+    }
+
+    function saveAll() {
+        localStorage.setItem('kdchd_users', JSON.stringify(users));
+        localStorage.setItem('kdchd_posts', JSON.stringify(posts));
+        localStorage.setItem('kdchd_avatars', JSON.stringify(avatars));
+    }
+
+    const badWords = ['бля', 'сука', 'хуй', 'пизд', 'еба', 'блять', 'нахуй'];
+    function censorText(t) { let f = t; badWords.forEach(w => { const re = new RegExp(w, 'gi'); f = f.replace(re, '****'); }); return f; }
+
+    let onlineUsers = new Set();
+    function updateOnlineCount() { document.getElementById('onlineCount').innerText = onlineUsers.size; }
+    onlineUsers.add('temp'); updateOnlineCount();
+
+    function renderFeed() {
+        const container = document.getElementById('postsList');
+        if (!container) return;
+        const reversed = [...posts].reverse();
+        container.innerHTML = reversed.map(p => {
+            const user = users.find(u => u.username === p.author);
+            const isVerified = verifiedUsers.includes(p.author);
+            const avatarUrl = avatars[p.author] || `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23333'/%3E%3Ctext x='50' y='70' text-anchor='middle' fill='white' font-size='40'%3E${user?.clanEmoji || '?'}%3C/text%3E%3C/svg%3E`;
+            return `<div class="post"><div class="post-header"><div class="post-avatar"><img src="${avatarUrl}"></div><div><div class="post-author">${p.author} ${isVerified ? '<span class="verified">✅</span>' : ''} <span style="font-size:12px; color:#888;">${user?.clanEmoji || ''} ${user?.clanName || ''}</span></div><div style="font-size:12px; color:#888;">${p.date}</div></div></div><div class="post-content">${censorText(p.text)}</div><div class="post-actions"><span class="likeBtn" data-id="${p.id}">❤️ ${p.likes || 0}</span><span class="commentBtn" data-id="${p.id}">💬 ${(p.comments || []).length}</span></div><div id="comments-${p.id}" class="hidden" style="margin-top:12px;">${(p.comments || []).map(c => `<div><b>${c.author}</b>: ${censorText(c.text)}</div>`).join('')}<div style="display:flex; gap:8px; margin-top:8px;"><input type="text" id="commentInput-${p.id}" placeholder="Написать комментарий..."><button class="sendComment" data-id="${p.id}">→</button></div></div></div>`;
+        }).join('');
+        document.querySelectorAll('.likeBtn').forEach(btn => { btn.onclick = () => { const id = parseInt(btn.dataset.id); const post = posts.find(p => p.id === id); if (post) { post.likes = (post.likes || 0) + 1; saveAll(); renderFeed(); } }; });
+        document.querySelectorAll('.commentBtn').forEach(btn => { btn.onclick = () => { const id = btn.dataset.id; document.getElementById(`comments-${id}`).classList.toggle('hidden'); }; });
+        document.querySelectorAll('.sendComment').forEach(btn => { btn.onclick = () => { const id = parseInt(btn.dataset.id); const input = document.getElementById(`commentInput-${id}`); const text = input.value.trim(); if (text && currentUser) { const post = posts.find(p => p.id === id); if (post) { if (!post.comments) post.comments = []; post.comments.push({ author: currentUser.username, text: text }); saveAll(); renderFeed(); } input.value = ''; } }; });
+    }
+
+    function renderProfileUI() {
+        if (!currentUser) return;
+        document.getElementById('profileName').innerText = currentUser.username;
+        document.getElementById('profileUsername').innerText = `@${currentUser.username}`;
+        const avatarUrl = avatars[currentUser.username] || `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23333'/%3E%3Ctext x='50' y='70' text-anchor='middle' fill='white' font-size='40'%3E${currentUser.clanEmoji || '?'}%3C/text%3E%3C/svg%3E`;
+        document.getElementById('profileAvatarImg').src = avatarUrl;
+        const userPosts = posts.filter(p => p.author === currentUser.username);
+        document.getElementById('userPostsList').innerHTML = userPosts.map(p => `<div class="post"><div>${censorText(p.text)}</div><div style="font-size:12px; color:#888;">❤️ ${p.likes || 0}</div></div>`).join('');
+    }
+
+    document.getElementById('publishBtn')?.addEventListener('click', () => {
+        if (!currentUser) return;
+        let text = document.getElementById('postText').value;
+        if (!text.trim()) { alert('Напиши что-нибудь'); return; }
+        const newPost = { id: Date.now(), author: currentUser.username, text: text, likes: 0, comments: [], date: new Date().toLocaleString() };
+        posts.push(newPost); saveAll(); renderFeed(); document.getElementById('postText').value = '';
+    });
+    document.getElementById('attachBtn')?.addEventListener('click', () => document.getElementById('fileInput').click());
+    document.getElementById('voiceBtn')?.addEventListener('click', () => alert('🎙️ Голосовые скоро!'));
+
+    document.getElementById('avatarInput')?.addEventListener('change', (e) => { if (e.target.files[0]) { const r = new FileReader(); r.onload = ev => { avatars[currentUser.username] = ev.target.result; saveAll(); renderProfileUI(); renderFeed(); }; r.readAsDataURL(e.target.files[0]); } });
+    document.getElementById('changeAvatarBtn')?.addEventListener('click', () => document.getElementById('avatarInput').click());
+
+    function navigateTo(page) {
+        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+        document.querySelector(`.nav-item[data-page="${page}"]`).classList.add('active');
+        document.getElementById('feedPage').classList.add('hidden');
+        document.getElementById('searchPage').classList.add('hidden');
+        document.getElementById('identPage').classList.add('hidden');
+        document.getElementById('notificationsPage').classList.add('hidden');
+        document.getElementById('profilePage').classList.add('hidden');
+        if (page === 'feed') document.getElementById('feedPage').classList.remove('hidden');
+        if (page === 'search') document.getElementById('searchPage').classList.remove('hidden');
+        if (page === 'ident') document.getElementById('identPage').classList.remove('hidden');
+        if (page === 'notifications') document.getElementById('notificationsPage').classList.remove('hidden');
+        if (page === 'profile') { document.getElementById('profilePage').classList.remove('hidden'); renderProfileUI(); }
+    }
+    document.querySelectorAll('.nav-item').forEach(item => { item.addEventListener('click', () => navigateTo(item.dataset.page)); });
+
+    document.getElementById('rightClans').innerHTML = '<div class="clan-rank">⚔️ Мечники <span>44.7K</span></div><div class="clan-rank">🛡️ Стражи <span>22.5K</span></div><div class="clan-rank">🔥 Пламенные <span>18.2K</span></div>';
+    document.getElementById('rightHashtags').innerHTML = '<div class="hashtag-item">#art <span>35.8K</span></div><div class="hashtag-item">#mem <span>25.2K</span></div><div class="hashtag-item">#nowkie <span>6.8K</span></div>';
+    document.getElementById('topClans').innerHTML = document.getElementById('rightClans').innerHTML;
+    document.getElementById('topHashtags').innerHTML = document.getElementById('rightHashtags').innerHTML;
+
+    let pendingReg = null;
+    document.getElementById('doLogin')?.addEventListener('click', () => {
+        const u = document.getElementById('loginUsername').value;
+        const p = document.getElementById('loginPassword').value;
+        const user = users.find(us => us.username === u && us.password === p);
+        if (user) { currentUser = user; document.getElementById('authScreen').classList.add('hidden'); document.getElementById('mainContent').classList.remove('hidden'); renderFeed(); renderProfileUI(); document.getElementById('identId').innerText = `@${currentUser.username}`; navigateTo('feed'); onlineUsers.add(currentUser.username); updateOnlineCount(); }
+        else document.getElementById('authError').innerText = 'Неверный логин или пароль';
+    });
+    document.getElementById('showRegBtn')?.addEventListener('click', () => { document.getElementById('loginForm').classList.add('hidden'); document.getElementById('regForm').classList.remove('hidden'); });
+    document.getElementById('showLoginBtn')?.addEventListener('click', () => { document.getElementById('regForm').classList.add('hidden'); document.getElementById('loginForm').classList.remove('hidden'); pendingReg = null; document.getElementById('codeBlock').classList.add('hidden'); });
+    document.getElementById('doReg')?.addEventListener('click', () => {
+        const u = document.getElementById('regUsername').value;
+        const e = document.getElementById('regEmail').value;
+        const p = document.getElementById('regPassword').value;
+        const ce = document.getElementById('regClan').value;
+        const cn = document.getElementById('regClanName').value || 'Воин';
+        if (!u || !e || !p) { document.getElementById('regError').innerText = 'Заполни все поля'; return; }
+        if (!e.includes('@')) { document.getElementById('regError').innerText = 'Введи настоящую почту'; return; }
+        if (users.find(uu => uu.username === u)) { document.getElementById('regError').innerText = 'Логин занят'; return; }
+        if (!pendingReg) {
+            const code = Math.floor(100000 + Math.random() * 900000).toString();
+            pendingReg = { username: u, email: e, password: p, clanEmoji: ce, clanName: cn, code: code };
+            document.getElementById('codeBlock').classList.remove('hidden');
+            alert(`Код подтверждения: ${code}`);
+            document.getElementById('regError').innerHTML = '<span style="color: #0f0;">Код отправлен!</span>';
+            return;
+        }
+        if (document.getElementById('regCode').value !== pendingReg.code) { document.getElementById('regError').innerText = 'Неверный код'; return; }
+        users.push({ username: pendingReg.username, password: pendingReg.password, email: pendingReg.email, clanEmoji: pendingReg.clanEmoji, clanName: pendingReg.clanName, regDate: new Date().toLocaleDateString() });
+        saveAll(); pendingReg = null; alert('Регистрация успешна! Войдите.'); document.getElementById('showLoginBtn').click();
+    });
+    document.getElementById('logoutBtn')?.addEventListener('click', () => { onlineUsers.delete(currentUser?.username); updateOnlineCount(); currentUser = null; document.getElementById('mainContent').classList.add('hidden'); document.getElementById('authScreen').classList.remove('hidden'); });
+    document.querySelectorAll('.profile-tab').forEach(tab => { tab.addEventListener('click', () => { document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active')); tab.classList.add('active'); document.getElementById('userPostsList').classList.add('hidden'); document.getElementById('userLikesList').classList.add('hidden'); if (tab.dataset.tab === 'userPosts') document.getElementById('userPostsList').classList.remove('hidden'); if (tab.dataset.tab === 'userLikes') document.getElementById('userLikesList').classList.remove('hidden'); }); });
+</script>
+</body>
+</html>
