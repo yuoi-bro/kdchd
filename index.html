@@ -4,142 +4,335 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>КД ЧД — Соцсеть без ЛС</title>
-    <!-- Firebase SDK -->
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Golos+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Roboto, sans-serif; background: #000; color: #e0e0e0; }
-        .app-container { display: flex; max-width: 1300px; margin: 0 auto; min-height: 100vh; }
-        .sidebar { width: 260px; padding: 30px 20px; border-right: 1px solid #2c2c2c; position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; }
-        .logo { font-size: 28px; font-weight: 800; margin-bottom: 40px; background: linear-gradient(135deg, #fff, #1d9bf0); -webkit-background-clip: text; background-clip: text; color: transparent; cursor: pointer; }
-        .nav-item { padding: 12px 16px; margin: 4px 0; border-radius: 12px; cursor: pointer; color: #aaa; transition: 0.2s; }
-        .nav-item:hover, .nav-item.active { background: #1a1a1a; color: white; }
-        .bottom-links { margin-top: 40px; padding-top: 20px; border-top: 1px solid #2c2c2c; font-size: 12px; color: #555; }
-        .bottom-links div { margin: 8px 0; cursor: pointer; }
-        .logout-btn { margin-top: 20px; padding: 10px; background: #1a1a1a; border: none; border-radius: 12px; color: #ff4444; cursor: pointer; width: 100%; }
-        .center-panel { flex: 1; max-width: 600px; padding: 20px; border-right: 1px solid #2c2c2c; }
-        .right-panel { width: 320px; padding: 30px 20px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
-        .card { background: #121212; border-radius: 16px; padding: 16px; margin-bottom: 16px; border: 1px solid #2c2c2c; }
-        .card-title { font-weight: 700; margin-bottom: 12px; }
-        .post { background: #121212; border-radius: 16px; padding: 16px; margin-bottom: 16px; border: 1px solid #2c2c2c; animation: fadeInUp 0.3s ease; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        :root, [data-theme="dark"] {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-card: #161616;
+            --bg-hover: #1e1e1e;
+            --bg-input: #1a1a1a;
+            --border: rgba(255,255,255,0.08);
+            --border-strong: rgba(255,255,255,0.15);
+            --text-primary: #f0f0f0;
+            --text-secondary: #888;
+            --text-muted: #555;
+            --accent: #1d9bf0;
+            --accent-hover: #1a8cd8;
+            --accent-glow: rgba(29,155,240,0.2);
+            --logo-from: #ffffff;
+            --logo-to: #1d9bf0;
+            --card-shadow: 0 4px 24px rgba(0,0,0,0.4);
+            --post-shadow: 0 2px 12px rgba(0,0,0,0.3);
+            --sidebar-blur: blur(0px);
+            --like-color: #ff3366;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f5f5f0;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --bg-hover: #f0f0eb;
+            --bg-input: #f8f8f5;
+            --border: rgba(0,0,0,0.08);
+            --border-strong: rgba(0,0,0,0.15);
+            --text-primary: #111111;
+            --text-secondary: #666;
+            --text-muted: #aaa;
+            --accent: #1d9bf0;
+            --accent-hover: #1a8cd8;
+            --accent-glow: rgba(29,155,240,0.15);
+            --logo-from: #1d9bf0;
+            --logo-to: #0a5a8a;
+            --card-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            --post-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+
+        [data-theme="glass"] {
+            --bg-primary: transparent;
+            --bg-secondary: rgba(255,255,255,0.04);
+            --bg-card: rgba(255,255,255,0.06);
+            --bg-hover: rgba(255,255,255,0.1);
+            --bg-input: rgba(255,255,255,0.06);
+            --border: rgba(255,255,255,0.1);
+            --border-strong: rgba(255,255,255,0.2);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255,255,255,0.6);
+            --text-muted: rgba(255,255,255,0.3);
+            --accent: #60c4ff;
+            --accent-hover: #3ab4f5;
+            --accent-glow: rgba(96,196,255,0.25);
+            --logo-from: #ffffff;
+            --logo-to: #60c4ff;
+            --card-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+            --post-shadow: 0 4px 20px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.08);
+            --sidebar-blur: blur(20px);
+        }
+
+        body {
+            font-family: 'Golos Text', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background 0.4s ease, color 0.4s ease;
+            min-height: 100vh;
+        }
+
+        body[data-theme="glass"] {
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+        }
+
+        .glass-bg { display: none; position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+        body[data-theme="glass"] .glass-bg { display: block; }
+        .glass-bg::before {
+            content: ''; position: absolute; width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(96,196,255,0.15) 0%, transparent 70%);
+            top: -100px; left: -100px;
+            animation: bgFloat1 8s ease-in-out infinite;
+        }
+        .glass-bg::after {
+            content: ''; position: absolute; width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(180,100,255,0.12) 0%, transparent 70%);
+            bottom: 50px; right: -50px;
+            animation: bgFloat2 10s ease-in-out infinite;
+        }
+        @keyframes bgFloat1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(60px,40px)} }
+        @keyframes bgFloat2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-40px,60px)} }
+
+        .app-container { display: flex; max-width: 1300px; margin: 0 auto; min-height: 100vh; position: relative; z-index: 1; }
+
+        /* Сайдбар */
+        .sidebar {
+            width: 260px; padding: 28px 16px; border-right: 1px solid var(--border);
+            position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; justify-content: space-between;
+            backdrop-filter: var(--sidebar-blur); transition: all 0.4s ease;
+        }
+        .logo {
+            font-family: 'Unbounded', sans-serif; font-size: 26px; font-weight: 900; margin-bottom: 36px;
+            background: linear-gradient(135deg, var(--logo-from), var(--logo-to));
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+            cursor: pointer; transition: transform 0.2s ease; display: inline-block;
+        }
+        .logo:hover { transform: scale(1.04); }
+        .nav-item {
+            padding: 11px 14px; margin: 3px 0; border-radius: 14px; cursor: pointer; color: var(--text-secondary);
+            transition: all 0.2s ease; display: flex; align-items: center; gap: 10px; font-size: 15px;
+        }
+        .nav-item:hover { color: var(--text-primary); background: var(--bg-hover); }
+        .nav-item.active { background: var(--bg-hover); color: var(--text-primary); border-left: 3px solid var(--accent); }
+        .nav-emoji { font-size: 18px; }
+
+        .bottom-links { font-size: 11px; color: var(--text-muted); padding-top: 16px; border-top: 1px solid var(--border); }
+        .bottom-links div { margin: 6px 0; cursor: pointer; transition: color 0.2s; }
+        .bottom-links div:hover { color: var(--text-secondary); }
+        .logout-btn {
+            margin-top: 12px; padding: 10px; background: transparent; border: 1px solid rgba(255,68,68,0.3);
+            border-radius: 12px; color: #ff4444; cursor: pointer; width: 100%; font-size: 14px; transition: all 0.2s;
+        }
+        .logout-btn:hover { background: rgba(255,68,68,0.1); border-color: #ff4444; }
+
+        .theme-switcher { display: flex; gap: 6px; margin-bottom: 12px; padding: 6px; background: var(--bg-hover); border-radius: 12px; }
+        .theme-btn { flex: 1; padding: 6px 4px; border: none; border-radius: 8px; cursor: pointer; font-size: 11px; background: transparent; color: var(--text-secondary); transition: all 0.2s; }
+        .theme-btn.active { background: var(--accent); color: #fff; }
+
+        .center-panel { flex: 1; max-width: 600px; padding: 20px; border-right: 1px solid var(--border); }
+        .right-panel { width: 320px; padding: 24px 20px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+
+        .card {
+            background: var(--bg-card); border-radius: 18px; padding: 18px; margin-bottom: 14px;
+            border: 1px solid var(--border); box-shadow: var(--card-shadow); backdrop-filter: var(--sidebar-blur);
+            transition: all 0.3s ease; animation: slideInCard 0.4s ease forwards;
+        }
+        @keyframes slideInCard { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+        .card-title { font-weight: 700; font-size: 15px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+
+        .post {
+            background: var(--bg-card); border-radius: 18px; padding: 18px; margin-bottom: 14px;
+            border: 1px solid var(--border); box-shadow: var(--post-shadow); backdrop-filter: var(--sidebar-blur);
+            transition: all 0.3s ease; animation: postEnter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        @keyframes postEnter { from { opacity: 0; transform: translateY(24px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        .post:hover { border-color: var(--border-strong); transform: translateY(-1px); }
+
         .post-header { display: flex; gap: 12px; margin-bottom: 12px; }
-        .post-avatar { width: 48px; height: 48px; border-radius: 50%; background: #333; overflow: hidden; }
+        .post-avatar { width: 46px; height: 46px; border-radius: 50%; background: var(--bg-hover); overflow: hidden; flex-shrink: 0; border: 2px solid var(--border); }
         .post-avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .post-author { font-weight: 700; }
-        .pinned-badge { background: #1d9bf0; color: white; font-size: 10px; padding: 2px 8px; border-radius: 20px; margin-left: 8px; }
-        .post-actions { display: flex; gap: 24px; margin-top: 12px; color: #777; cursor: pointer; }
-        .post-actions span:hover { color: #1d9bf0; }
-        input, textarea { width: 100%; padding: 12px; background: #1a1a1a; border: 1px solid #333; border-radius: 12px; color: white; margin: 8px 0; }
-        button { background: #1d9bf0; color: white; border: none; padding: 10px 20px; border-radius: 24px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        button:hover { transform: scale(1.02); }
-        .hidden { display: none; }
+        .post-author { font-weight: 700; font-size: 15px; }
+        .post-time { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+        .pinned-badge { background: var(--accent); color: white; font-size: 10px; padding: 2px 8px; border-radius: 20px; margin-left: 8px; }
+
+        .post-actions { display: flex; gap: 20px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+        .action-btn { display: flex; align-items: center; gap: 6px; color: var(--text-muted); cursor: pointer; font-size: 14px; padding: 4px 8px; border-radius: 8px; }
+        .action-btn:hover { background: var(--bg-hover); color: var(--accent); }
+        .action-btn.liked { color: var(--like-color); }
+
+        .compose-card { background: var(--bg-card); border-radius: 18px; padding: 18px; margin-bottom: 14px; border: 1px solid var(--border); }
+        .compose-row { display: flex; gap: 12px; }
+        .compose-avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--bg-hover); overflow: hidden; flex-shrink: 0; border: 2px solid var(--border); }
+        textarea {
+            width: 100%; padding: 12px 0; background: transparent; border: none; color: var(--text-primary);
+            font-family: 'Golos Text', sans-serif; font-size: 16px; resize: none; outline: none; min-height: 60px;
+        }
+        textarea::placeholder { color: var(--text-muted); }
+        .compose-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+        .char-counter { font-size: 13px; color: var(--text-muted); }
+
+        button, .btn {
+            background: var(--accent); color: white; border: none; padding: 10px 22px; border-radius: 24px;
+            font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s ease;
+        }
+        button:hover { background: var(--accent-hover); transform: scale(1.02); }
+        button:active { transform: scale(0.98); }
+
+        input, select {
+            width: 100%; padding: 12px 16px; background: var(--bg-input); border: 1px solid var(--border);
+            border-radius: 12px; color: var(--text-primary); margin: 6px 0; font-size: 15px; outline: none;
+        }
+        input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+
+        .auth-card { max-width: 420px; margin: 40px auto; text-align: center; }
+        .auth-logo { font-family: 'Unbounded', sans-serif; font-size: 48px; font-weight: 900; background: linear-gradient(135deg, var(--logo-from), var(--logo-to)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .profile-avatar-wrap { width: 90px; height: 90px; border-radius: 50%; border: 4px solid var(--bg-card); margin: -45px auto 0; overflow: hidden; cursor: pointer; }
+        .profile-name { font-family: 'Unbounded', sans-serif; font-size: 20px; font-weight: 700; text-align: center; margin-top: 12px; }
+        .profile-stats { display: flex; justify-content: center; gap: 32px; margin: 16px 0; }
+        .stat-num { font-size: 22px; font-weight: 700; }
+        .profile-tabs { display: flex; border-bottom: 1px solid var(--border); margin: 16px -18px 0; }
+        .profile-tab { flex: 1; text-align: center; padding: 12px; cursor: pointer; color: var(--text-secondary); border-bottom: 2px solid transparent; }
+        .profile-tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
+
+        .online-counter { font-family: 'Unbounded', sans-serif; font-size: 36px; font-weight: 900; color: var(--accent); display: flex; align-items: center; gap: 10px; }
+        .online-dot { width: 10px; height: 10px; border-radius: 50%; background: #22c55e; animation: pulse 2s ease-in-out infinite; }
+        @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.3)} }
+
+        .empty-state { text-align: center; padding: 48px 20px; color: var(--text-muted); }
+        .empty-state .emoji { font-size: 48px; }
+        .toast {
+            position: fixed; bottom: 24px; right: 24px; background: var(--bg-card); border-left: 3px solid var(--accent);
+            border-radius: 12px; padding: 12px 18px; font-size: 14px; z-index: 9999;
+            animation: toastIn 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards;
+        }
+        @keyframes toastIn { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
+        .hidden { display: none !important; }
         .flex-between { display: flex; justify-content: space-between; align-items: center; }
-        .profile-avatar { width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 15px; overflow: hidden; cursor: pointer; }
-        .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .profile-name { font-size: 22px; font-weight: 700; text-align: center; }
-        .profile-stats { display: flex; justify-content: center; gap: 30px; margin: 20px 0; text-align: center; }
-        .profile-tabs { display: flex; gap: 20px; border-bottom: 1px solid #2c2c2c; margin-bottom: 20px; }.profile-tab { padding: 12px 0; cursor: pointer; color: #888; }
-        .profile-tab.active { color: white; border-bottom: 2px solid #1d9bf0; }
-        .clan-rank { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #2c2c2c; }
-        .account-switch-btn { width: 100%; margin-bottom: 10px; background: #333; }
-        .switch-accounts { margin-top: 10px; }
-        .dropup { position: relative; display: inline-block; width: 100%; }
-        .dropup-content { position: absolute; bottom: 100%; left: 0; background: #1a1a1a; border-radius: 12px; width: 100%; margin-bottom: 5px; z-index: 100; border: 1px solid #333; }
-        .dropup-content div { padding: 10px; cursor: pointer; text-align: center; }
-        .dropup-content div:hover { background: #333; }
-        .corona-animation { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1000; animation: fadeOut 2s forwards; }
-        .corona { position: absolute; font-size: 40px; animation: fly 1.5s ease-out forwards; }
-        @keyframes fly { 0% { transform: translate(0, 0) rotate(0deg); opacity: 1; } 100% { transform: translate(var(--dx, 200px), var(--dy, -200px)) rotate(360deg); opacity: 0; } }
-        @keyframes fadeOut { 0% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
-        .like-animation { animation: heartBeat 0.3s ease; }
-        @keyframes heartBeat { 0% { transform: scale(1); } 50% { transform: scale(1.3); color: #ff3366; } 100% { transform: scale(1); } }
+
+        @media (max-width: 900px) {
+            .sidebar { display: none; }
+            .right-panel { display: none; }
+            .center-panel { border-right: none; max-width: 100%; padding-bottom: 80px; }
+        }
     </style>
 </head>
-<body>
+<body data-theme="dark">
+
+<div class="glass-bg"></div>
+
 <div class="app-container">
+    <!-- САЙДБАР -->
     <div class="sidebar">
         <div>
             <div class="logo" id="logoClick">КД ЧД</div>
-            <div class="nav-item active" data-page="feed">📱 Лента</div>
-            <div class="nav-item" data-page="search">🔍 Поиск</div>
-            <div class="nav-item" data-page="ident">🆔 Идент</div>
-            <div class="nav-item" data-page="notifications">🔔 Уведомления</div>
-            <div class="nav-item" data-page="profile">👤 Профиль</div>
-            <div class="nav-item" data-page="rules">📜 Всевышние правила</div>
-            <div class="nav-item" data-page="about">🏢 О компании</div>
+            <nav>
+                <div class="nav-item active" data-page="feed"><span class="nav-emoji">📱</span> Лента</div>
+                <div class="nav-item" data-page="search"><span class="nav-emoji">🔍</span> Поиск</div>
+                <div class="nav-item" data-page="ident"><span class="nav-emoji">🆔</span> Идент</div>
+                <div class="nav-item" data-page="notifications"><span class="nav-emoji">🔔</span> Уведомления</div>
+                <div class="nav-item" data-page="profile"><span class="nav-emoji">👤</span> Профиль</div>
+                <div class="nav-item" data-page="rules"><span class="nav-emoji">📜</span> Правила</div>
+                <div class="nav-item" data-page="about"><span class="nav-emoji">🏢</span> О нас</div>
+            </nav>
         </div>
         <div>
+            <div class="theme-switcher">
+                <button class="theme-btn active" data-theme-val="dark" onclick="setTheme('dark')">🌑 Тёмная</button>
+                <button class="theme-btn" data-theme-val="light" onclick="setTheme('light')">☀️ Белая</button>
+                <button class="theme-btn" data-theme-val="glass" onclick="setTheme('glass')">💎 Стекло</button>
+            </div>
             <div class="bottom-links">
-                <div>Статус серверов</div>
+                <div>🔴 Статус серверов</div>
                 <div>Условия использования</div>
                 <div>Конфиденциальность</div>
-                <div>Политика Cookies</div>
-                <div style="margin-top: 10px;">© 2026 KDCHD Studio by Yuki</div>
+                <div>© 2026 КД ЧД</div>
             </div>
-            <div class="switch-accounts" id="switchAccountContainer"></div>
-            <button class="logout-btn" id="logoutBtn">Выйти</button>
+            <div id="switchAccountContainer"></div>
+            <button class="logout-btn" id="logoutBtn">🚪 Выйти</button>
         </div>
     </div>
 
+    <!-- ЦЕНТР -->
     <div class="center-panel" id="centerPanel">
+
+        <!-- АВТОРИЗАЦИЯ -->
         <div id="authScreen">
-            <div class="card" style="text-align: center;">
-                <h2>КД ЧД</h2>
-                <p style="color: #888;">Короткий День — Чёткий День</p>
-                <div id="loginForm">
-                    <input type="text" id="loginUsername" placeholder="Логин">
-                    <input type="password" id="loginPassword" placeholder="Пароль">
-                    <button id="doLogin">Войти</button>
-                    <p style="margin-top: 15px;"><span id="showRegBtn" style="color: #1d9bf0; cursor: pointer;">Создать аккаунт</span></p>
-                    <div id="authError" style="color: #ff4444;"></div>
-                </div>
-                <div id="regForm" class="hidden">
-                    <input type="text" id="regUsername" placeholder="Логин">
-                    <input type="password" id="regPassword" placeholder="Пароль">
-                    <input type="number" id="regTelegramId" placeholder="Ваш Telegram ID">
-                    <div style="font-size: 11px; color: #888; margin-bottom: 8px;">👉 Узнать ID: @userinfobot</div>
-                    <select id="regClan"><option value="⚔️">⚔️ Мечники</option><option value="🛡️">🛡️ Стражи</option>
-                        <option value="🔥">🔥 Пламенные</option><option value="🌊">🌊 Волны</option>
-                        <option value="🎨">🎨 Краски</option><option value="🚀">🚀 Звёздные</option>
-                        <option value="🐉">🐉 Драконы</option><option value="👑">👑 Имперцы</option>
-                    </select>
-                    <input type="text" id="regClanName" placeholder="Название клана">
-                    <button id="doReg">Зарегистрироваться</button>
-                    <p style="margin-top: 15px;"><span id="showLoginBtn" style="color: #1d9bf0; cursor: pointer;">← Назад</span></p>
-                    <div id="regError" style="color: #ff4444;"></div>
-                </div>
-                <div id="codeVerifyBlock" class="hidden">
-                    <div class="card">
-                        <p>📨 Код подтверждения отправлен в Telegram</p>
-                        <input type="text" id="verificationCode" placeholder="Код из Telegram">
-                        <button id="submitCode">Подтвердить</button>
-                        <div id="codeError" style="color: #ff4444;"></div>
+            <div class="auth-card">
+                <div class="auth-logo">КД ЧД</div>
+                <div class="card">
+                    <div id="loginForm">
+                        <input type="text" id="loginUsername" placeholder="Логин">
+                        <input type="password" id="loginPassword" placeholder="Пароль">
+                        <button id="doLogin" style="width:100%">Войти 🚀</button>
+                        <p style="margin-top:14px;">Нет аккаунта? <span id="showRegBtn" style="color:var(--accent);cursor:pointer;">Создать →</span></p>
+                        <div id="authError" style="color:#ff4444;"></div>
+                    </div>
+                    <div id="regForm" class="hidden">
+                        <h3>Создать аккаунт</h3>
+                        <input type="text" id="regUsername" placeholder="Логин">
+                        <input type="password" id="regPassword" placeholder="Пароль">
+                        <input type="number" id="regTelegramId" placeholder="Ваш Telegram ID">
+                        <select id="regClan">
+                            <option value="⚔️">⚔️ Мечники</option>
+                            <option value="🛡️">🛡️ Стражи</option>
+                            <option value="🔥">🔥 Пламенные</option>
+                            <option value="🌊">🌊 Волны</option>
+                            <option value="🎨">🎨 Краски</option>
+                            <option value="🚀">🚀 Звёздные</option>
+                            <option value="🐉">🐉 Драконы</option>
+                        </select>
+                        <input type="text" id="regClanName" placeholder="Название клана">
+                        <button id="doReg" style="width:100%">Зарегистрироваться ✨</button>
+                        <p style="margin-top:12px;"><span id="showLoginBtn" style="color:var(--accent);cursor:pointer;">← Назад</span></p>
+                        <div id="regError" style="color:#ff4444;"></div>
+                    </div>
+                    <div id="codeVerifyBlock" class="hidden">
+                        <div style="text-align:center; padding:20px;">
+                            <div style="font-size:48px;">📨</div>
+                            <p>Код отправлен в Telegram</p>
+                            <input type="text" id="verificationCode" placeholder="000000" maxlength="6">
+                            <button id="submitCode" style="margin-top:12px;">Подтвердить ✅</button>
+                            <div id="codeError" style="color:#ff4444;"></div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- ОСНОВНОЙ КОНТЕНТ -->
         <div id="mainContent" class="hidden">
             <div id="feedPage">
-                <div class="card">
-                    <textarea id="postText" rows="2" placeholder="Что нового?"></textarea>
-                    <div class="flex-between" style="margin-top: 10px;">
-                        <button id="publishBtn">Отправить</button>
+                <div class="compose-card">
+                    <div class="compose-row">
+                        <div class="compose-avatar"><img id="composeAvatar" src=""></div>
+                        <textarea id="postText" rows="2" placeholder="Что нового?" maxlength="500" oninput="updateCharCount()"></textarea>
+                    </div>
+                    <div class="compose-footer">
+                        <span class="char-counter" id="charCounter">500</span>
+                        <button id="publishBtn">Отправить 🚀</button>
                     </div>
                 </div>
                 <div id="postsList"></div>
             </div>
+
             <div id="profilePage" class="hidden">
                 <div class="card">
-                    <div class="profile-avatar" id="avatarClick"><img id="profileAvatarImg" src=""></div>
+                    <div class="profile-avatar-wrap" id="avatarClick"><img id="profileAvatarImg" src=""></div>
                     <div class="profile-name" id="profileName"></div>
-                    <div class="profile-username" id="profileUsername"></div>
+                    <div class="profile-handle" id="profileUsername" style="text-align:center; color:var(--text-secondary);"></div>
                     <div class="profile-stats">
-                        <div><div class="number" id="followersCount">0</div><div>подписчиков</div></div>
-                        <div><div class="number" id="followingCount">0</div><div>подписок</div></div>
-                        <div><div>регистрация: <span id="regDate">май 2026</span></div></div>
+                        <div><div class="stat-num" id="followersCount">0</div><div>подписчиков</div></div>
+                        <div><div class="stat-num" id="followingCount">0</div><div>подписок</div></div>
+                        <div><div class="stat-num" id="postsCount">0</div><div>постов</div></div>
                     </div>
                     <div class="profile-tabs">
                         <div class="profile-tab active" data-tab="userPosts">Посты</div>
@@ -150,29 +343,78 @@
                 </div>
                 <div class="card">
                     <input type="file" id="avatarInput" accept="image/*" style="display:none">
-                    <button id="changeAvatarBtn" style="width:100%">Сменить аватар</button>
+                    <button id="changeAvatarBtn" style="width:100%">📷 Сменить аватар</button>
                 </div>
             </div>
-            <div id="searchPage" class="hidden"><div class="card">🔎 Поиск (скоро)</div></div>
-            <div id="identPage" class="hidden"><div class="card">🆔 Ваш ID: <span id="identId"></span></div></div>
-            <div id="notificationsPage" class="hidden"><div class="card">🔔 Уведомлений нет</div></div>
-            <div id="rulesPage" class="hidden"><div class="card"><h3>📜 Всевышние правила КД ЧД</h3><p><strong>1. Запрещено:</strong> мат, оскорбления, спам, 18+ контент, реклама без разрешения.<br><strong>2. Наказания:</strong> предупреждение → мут 5 мин → мут 10 мин → мут 19 мин и т.д.<br><strong>3. Спам в ЛС @data_drop</strong> → бан 2 дня.<br><strong>4. Уважай других.</strong> Нарушители будут блокироваться.<br><br><em>КД ЧД — доброе пространство. Создатель: Артур Анкухин</em></p></div></div><div id="aboutPage" class="hidden"><div class="card"><h3>🏢 О компании</h3><p><strong>KDCHD Studio by Yuki</strong><br>Создатель: Анкухин Артур Дмитриевич (Юкивич)<br>Проекты: КД ЧД, YouTube-канал, фильм<br>Контакты: @data_drop | kdchd.verify@gmail.com<br><br>© 2026 КД ЧД — отечественная соцсеть без ЛС</p></div></div>
+
+            <div id="searchPage" class="hidden">
+                <div class="card">
+                    <input type="text" id="searchInput" placeholder="Найти пользователя..." oninput="doSearch()">
+                    <div id="searchResults"></div>
+                </div>
+            </div>
+
+            <div id="identPage" class="hidden">
+                <div class="card" style="text-align:center;">
+                    <div style="font-size:48px;">🆔</div>
+                    <div style="font-size:12px; color:var(--text-secondary);">Ваш идентификатор</div>
+                    <div style="font-size:24px; font-weight:700;" id="identId">@—</div>
+                </div>
+            </div>
+
+            <div id="notificationsPage" class="hidden">
+                <div class="empty-state"><div class="emoji">🔔</div><p>Уведомлений нет</p></div>
+            </div>
+
+            <div id="rulesPage" class="hidden">
+                <div class="card">
+                    <div class="card-title">📜 Правила КД ЧД</div>
+                    <div style="font-size:14px; line-height:1.7; color:var(--text-secondary);">
+                        <p><strong>❌ Запрещено:</strong> мат, оскорбления, спам, 18+ контент.</p>
+                        <p><strong>⚖️ Наказания:</strong> предупреждение → мут → бан.</p>
+                        <p><strong>💙 Уважайте друг друга.</strong></p>
+                        <div style="margin-top:16px;">✍️ Создатель: Артур Анкухин</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="aboutPage" class="hidden">
+                <div class="card">
+                    <div class="card-title">🏢 О компании</div>
+                    <div style="font-size:14px; line-height:1.7; color:var(--text-secondary);">
+                        <p>KDCHD Studio by Yuki</p>
+                        <p>Создатель: Анкухин Артур Дмитриевич</p>
+                        <p>Контакты: @data_drop</p>
+                        <div>© 2026 КД ЧД — отечественная соцсеть без ЛС</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
+    <!-- ПРАВАЯ ПАНЕЛЬ -->
     <div class="right-panel">
-        <div class="card"><div class="card-title">📊 Сейчас в сети</div><div style="font-size: 32px; font-weight: 700;" id="onlineCount">1</div></div>
-        <div class="card"><div class="card-title">🏆 Топ кланов</div><div id="rightClans"></div></div>
-        <div class="card"><div class="card-title">📌 Закреплено</div><div id="pinnedPost">Загрузка...</div></div>
+        <div class="card">
+            <div class="card-title">🌐 Сейчас в сети</div>
+            <div class="online-counter"><span class="online-dot"></span><span id="onlineCount">1</span></div>
+        </div>
+        <div class="card">
+            <div class="card-title">🏆 Топ кланов</div>
+            <div id="rightClans"></div>
+        </div>
+        <div class="card">
+            <div class="card-title">🌡️ Тема</div>
+            <div class="theme-switcher" style="margin-bottom:0;">
+                <button class="theme-btn" data-theme-val="dark" onclick="setTheme('dark')">🌑</button>
+                <button class="theme-btn" data-theme-val="light" onclick="setTheme('light')">☀️</button>
+                <button class="theme-btn" data-theme-val="glass" onclick="setTheme('glass')">💎</button>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
-    // ==================== НАСТРОЙКИ (ЗАМЕНИ НА СВОИ) ====================
-    const BOT_TOKEN = '8811392757:AAGzr6Q8g4QMuCcTJVEekDi5ZXfMibuHfgI'; // ТОКЕН ТВОЕГО БОТА
-    const YOUR_TELEGRAM_ID = 7520274841; // ТВОЙ TELEGRAM ID (число)
-    
-    // Firebase конфиг (ТВОЙ, из консоли)
+    // ===== FIREBASE НАСТРОЙКИ =====
     const firebaseConfig = {
         apiKey: "AIzaSyBwpAU96exT4dxzWIRGS5nzwv1LhLBNqdk",
         authDomain: "kdchd-374dc.firebaseapp.com",
@@ -180,248 +422,186 @@
         projectId: "kdchd-374dc",
         storageBucket: "kdchd-374dc.firebasestorage.app",
         messagingSenderId: "710757306837",
-        appId: "1:710757306837:web:ebc045369496fd56dc6d5c",
-        measurementId: "G-PPDGDEDMKY"
+        appId: "1:710757306837:web:ebc045369496fd56dc6d5c"
     };
-    
-    // ==================== ИНИЦИАЛИЗАЦИЯ ====================
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
-    
+
+    const BOT_TOKEN = '8811392757:AAGzr6Q8g4QMuCcTJVEekDi5ZXfMibuHfgI';
+    const YOUR_TELEGRAM_ID = 7520274841;
+
     let currentUser = null;
     let allUsers = [];
     let allPosts = [];
     let onlineUsers = new Set();
-    let clickCount = 0;
-    
-    // Сохранённые аккаунты (мультиаккаунтность)
-    let savedAccounts = JSON.parse(localStorage.getItem('kdchd_accounts')) || [];
-    
-    // ==================== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ====================
-    function updateOnlineCount() { document.getElementById('onlineCount').innerText = onlineUsers.size; }
-    onlineUsers.add('demo'); updateOnlineCount();
-    
+    let pendingReg = null, pendingLogin = null;
+
+    // ===== ФУНКЦИИ =====
+    function setTheme(theme) {
+        document.body.setAttribute('data-theme', theme);
+        localStorage.setItem('kdchd_theme', theme);
+        document.querySelectorAll('.theme-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.themeVal === theme);
+        });
+    }
+    setTheme(localStorage.getItem('kdchd_theme') || 'dark');
+
+    function showToast(msg, type = 'info') {
+        const el = document.createElement('div');
+        el.className = 'toast';
+        if (type === 'error') el.style.borderLeftColor = '#ff4444';
+        if (type === 'success') el.style.borderLeftColor = '#22c55e';
+        el.textContent = msg;
+        document.body.appendChild(el);
+        setTimeout(() => { el.remove(); }, 3000);
+    }
+
+    function updateOnlineCount() {
+        document.getElementById('onlineCount').innerText = onlineUsers.size || 1;
+    }
+    onlineUsers.add('demo');
+    updateOnlineCount();
+
     function censorText(text) {
-        const bad = ['бля', 'сука', 'хуй', 'пизд', 'еба', 'блять', 'нахуй', 'пидор', 'редиска'];
+        const bad = ['бля', 'сука', 'хуй', 'пизд', 'еба', 'блять', 'нахуй', 'пидор'];
         let filtered = text;
         bad.forEach(w => { const re = new RegExp(w, 'gi'); filtered = filtered.replace(re, '****'); });
         return filtered;
     }
-    
+
+    function updateCharCount() {
+        const text = document.getElementById('postText').value;
+        document.getElementById('charCounter').textContent = 500 - text.length;
+    }
+
+    function getAvatarUrl(user) {
+        if (user?.avatar) return user.avatar;
+        const emoji = user?.clanEmoji || '?';
+        return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23222'/%3E%3Ctext x='50' y='70' text-anchor='middle' fill='white' font-size='40'%3E${encodeURIComponent(emoji)}%3C/text%3E%3C/svg%3E`;
+    }
+
     async function sendTelegramCode(chatId, code) {
-        const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
         try {
-            const response = await fetch(url, {
+            const r = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: chatId, text: `🔐 Ваш код для входа в КД ЧД: ${code}\nНикому не сообщайте!` })
+                body: JSON.stringify({ chat_id: chatId, text: `🔐 Ваш код: ${code}\nНикому не сообщайте!` })
             });
-            const data = await response.json();
-            return data.ok === true;
-        } catch(e) { console.error(e); return false; }
+            const d = await r.json();
+            return d.ok === true;
+        } catch(e) { return false; }
     }
-    
-    // Паcхалка: консольное сообщение
-    console.log("%c🔥 2.0 будет жарко. Готовься, бро! 🔥", "color: #ff6600; font-size: 20px; font-weight: bold;");
-    
-    // Анимация корон для создателя
-    function showCoronaAnimation() {
-        const container = document.createElement('div');
-        container.className = 'corona-animation';
-        for (let i = 0; i < 30; i++) {
-            const corona = document.createElement('div');
-            corona.className = 'corona';
-            corona.innerHTML = '👑';
-            corona.style.left = Math.random() * 100 + '%';
-            corona.style.top = Math.random() * 100 + '%';
-            const dx = (Math.random() - 0.5) * 400;
-            const dy = -Math.random() * 300 - 50;
-            corona.style.setProperty('--dx', dx + 'px');
-            corona.style.setProperty('--dy', dy + 'px');
-            container.appendChild(corona);
-        }
-        document.body.appendChild(container);setTimeout(() => container.remove(), 2000);
-    }
-    
-    // Пасхалка: 5 кликов по логотипу
-    document.getElementById('logoClick')?.addEventListener('click', () => {
-        clickCount++;
-        if (clickCount === 5) {
-            alert('👑 Секретный код: 2.0 будет жарко!');
-            clickCount = 0;
-        }
-        setTimeout(() => clickCount = 0, 3000);
-    });
-    
-    // ==================== ЗАГРУЗКА ДАННЫХ ИЗ FIREBASE ====================
+
+    // ===== ЗАГРУЗКА ДАННЫХ =====
     async function loadUsers() {
         const snapshot = await database.ref('users').once('value');
         const data = snapshot.val();
         allUsers = data ? Object.values(data) : [];
-        // Создаём тестовых пользователей, если их нет
         if (!allUsers.find(u => u.username === 'yuki')) {
-            const defaultUsers = [
-                { username: 'yuki', password: 'Artyr13', telegramId: YOUR_TELEGRAM_ID, clanEmoji: '👑', clanName: 'Создатель', avatar: null, regDate: new Date().toLocaleDateString() },
-                { username: 'kdchd_official', password: 'KDCHD1', telegramId: YOUR_TELEGRAM_ID, clanEmoji: '📢', clanName: 'Официальный канал', avatar: null, regDate: new Date().toLocaleDateString() }
-            ];
-            for (const u of defaultUsers) {
-                await database.ref('users').push(u);
-            }
+            await database.ref('users').push({
+                username: 'yuki', password: 'Artyr13', telegramId: YOUR_TELEGRAM_ID,
+                clanEmoji: '👑', clanName: 'Создатель', regDate: new Date().toLocaleDateString()
+            });
+            await database.ref('users').push({
+                username: 'kdchd_official', password: 'KDCHD1', telegramId: YOUR_TELEGRAM_ID,
+                clanEmoji: '📢', clanName: 'Официальный канал', regDate: new Date().toLocaleDateString()
+            });
             await loadUsers();
         }
     }
-    
+
     async function loadPosts() {
         const snapshot = await database.ref('posts').once('value');
         const data = snapshot.val();
-        allPosts = data ? Object.values(data) : [];
+        allPosts = data ? Object.entries(data).map(([key, val]) => ({ ...val, _key: key })) : [];
         if (allPosts.length === 0) {
-            const defaultPost = {
-                author: 'kdchd_official',
-                text: 'Добро пожаловать в КД ЧД 0.6! Здесь нет ЛС, только кланы и пины. Правила — во вкладке "Всевышние правила". Приятного общения! 🔥',
-                likes: 0,
-                date: new Date().toLocaleString(),
-                timestamp: Date.now()
-            };
-            await database.ref('posts').push(defaultPost);
+            await database.ref('posts').push({
+                author: 'kdchd_official', text: '🔥 Добро пожаловать в КД ЧД! Здесь нет ЛС, только посты, кланы и уют.', likes: 0, likedBy: {}, date: new Date().toLocaleString(), timestamp: Date.now()
+            });
             await loadPosts();
         }
         renderFeed();
-        renderPinnedPost();
     }
-    
+
     function renderFeed() {
         const container = document.getElementById('postsList');
         if (!container) return;
+        if (allPosts.length === 0) {
+            container.innerHTML = '<div class="empty-state"><div class="emoji">📭</div><p>Постов пока нет</p></div>';
+            return;
+        }
         const sorted = [...allPosts].sort((a,b) => b.timestamp - a.timestamp);
         container.innerHTML = sorted.map(p => {
             const user = allUsers.find(u => u.username === p.author);
-            const avatarUrl = user?.avatar || `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23333'/%3E%3Ctext x='50' y='70' text-anchor='middle' fill='white' font-size='40'%3E${user?.clanEmoji || '?'}%3C/text%3E%3C/svg%3E`;
-            const isPinned = p.author === 'kdchd_official' && p === sorted.find(sp => sp.author === 'kdchd_official');
+            const avatar = getAvatarUrl(user);
+            const liked = currentUser && p.likedBy && p.likedBy[currentUser.username];
             return `<div class="post">
-                        <div class="post-header">
-                            <div class="post-avatar"><img src="${avatarUrl}"></div>
-                            <div>
-                                <div class="post-author">${p.author} ${isPinned ? '<span class="pinned-badge">📌 Закреплено</span>' : ''}</div>
-                                <div style="font-size: 11px; color:#888;">${p.date}</div>
-                            </div>
-                        </div>
-                        <div class="post-content">${censorText(p.text)}</div>
-                        <div class="post-actions"><span class="likeBtn" data-id="${p.id || p._key}">❤️ ${p.likes || 0}</span></div>
-                    </div>`;
+                <div class="post-header">
+                    <div class="post-avatar"><img src="${avatar}" onerror="this.src=''"></div>
+                    <div><div class="post-author">${p.author} ${p.author === 'kdchd_official' ? '<span class="pinned-badge">Официальный</span>' : ''}</div>
+                    <div class="post-time">${p.date}</div></div>
+                </div>
+                <div class="post-content">${censorText(p.text)}</div>
+                <div class="post-actions">
+                    <div class="action-btn ${liked ? 'liked' : ''}" onclick="toggleLike('${p._key}', this)">
+                        <span>${liked ? '❤️' : '🤍'}</span> <span id="like-count-${p._key}">${p.likes || 0}</span>
+                    </div>
+                </div>
+            </div>`;
         }).join('');
-        document.querySelectorAll('.likeBtn').forEach(btn => {
-            btn.onclick = async () => { /* лайк */ };
-        });
     }
-    
-    function renderPinnedPost() {
-        const officialPost = allPosts.filter(p => p.author === 'kdchd_official').sort((a,b) => b.timestamp - a.timestamp)[0];document.getElementById('pinnedPost').innerHTML = officialPost ? `📌 ${officialPost.text.substring(0, 100)}...` : 'Нет закреплённого поста';
-    }
-    
+
+    window.toggleLike = async function(postKey, btn) {
+        if (!currentUser) { showToast('Войдите в аккаунт', 'error'); return; }
+        const post = allPosts.find(p => p._key === postKey);
+        if (!post) return;
+        const likedBy = post.likedBy || {};
+        const already = likedBy[currentUser.username];
+        const newLikes = already ? (post.likes || 1) - 1 : (post.likes || 0) + 1;
+        const newLikedBy = { ...likedBy };
+        if (already) delete newLikedBy[currentUser.username];
+        else newLikedBy[currentUser.username] = true;
+        await database.ref('posts/' + postKey).update({ likes: newLikes, likedBy: newLikedBy });
+        post.likes = newLikes;
+        post.likedBy = newLikedBy;
+        document.getElementById(`like-count-${postKey}`).textContent = newLikes;
+        btn.classList.toggle('liked', !!newLikedBy[currentUser.username]);
+        btn.querySelector('span:first-child').textContent = newLikedBy[currentUser.username] ? '❤️' : '🤍';
+    };
+
     function renderProfileUI() {
         if (!currentUser) return;
+        const avatar = getAvatarUrl(currentUser);
         document.getElementById('profileName').innerText = currentUser.username;
-        document.getElementById('profileUsername').innerText = `@${currentUser.username}`;
+        document.getElementById('profileUsername').innerText = `@${currentUser.username} · ${currentUser.clanEmoji || ''} ${currentUser.clanName || ''}`;
         document.getElementById('identId').innerText = `@${currentUser.username}`;
-        const avatarUrl = currentUser.avatar || `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23333'/%3E%3Ctext x='50' y='70' text-anchor='middle' fill='white' font-size='40'%3E${currentUser.clanEmoji || '?'}%3C/text%3E%3C/svg%3E`;
-        document.getElementById('profileAvatarImg').src = avatarUrl;
-        document.getElementById('regDate').innerText = currentUser.regDate || 'май 2026';
+        document.getElementById('profileAvatarImg').src = avatar;
+        document.getElementById('composeAvatar').src = avatar;
         const userPosts = allPosts.filter(p => p.author === currentUser.username);
-        document.getElementById('userPostsList').innerHTML = userPosts.map(p => `<div class="post"><div>${censorText(p.text)}</div><div style="font-size:12px;">❤️ ${p.likes}</div></div>`).join('');
+        document.getElementById('postsCount').innerText = userPosts.length;
+        document.getElementById('userPostsList').innerHTML = userPosts.length ? userPosts.map(p => `<div class="post"><div class="post-content">${censorText(p.text)}</div><div style="font-size:12px;">❤️ ${p.likes || 0}</div></div>`).join('') : '<div class="empty-state">Постов нет</div>';
     }
-    
-    // Мультиаккаунтность
-    function saveAccount(username, password, telegramId) {
-        if (!savedAccounts.find(a => a.username === username)) {
-            savedAccounts.push({ username, encryptedPassword: btoa(password), telegramId });
-            localStorage.setItem('kdchd_accounts', JSON.stringify(savedAccounts));
-        }
-        renderAccountMenu();
+
+    function doSearch() {
+        const query = document.getElementById('searchInput')?.value.toLowerCase();
+        const results = document.getElementById('searchResults');
+        if (!query) { results.innerHTML = '<div class="empty-state"><div class="emoji">🔎</div><p>Введите имя</p></div>'; return; }
+        const found = allUsers.filter(u => u.username.toLowerCase().includes(query));
+        if (!found.length) { results.innerHTML = '<div class="empty-state">Ничего не найдено</div>'; return; }
+        results.innerHTML = found.map(u => `<div style="display:flex; gap:12px; padding:10px;"><div style="width:40px;height:40px;border-radius:50%;overflow:hidden;"><img src="${getAvatarUrl(u)}" style="width:100%"></div><div><b>${u.username}</b><br><span style="font-size:12px;">${u.clanName || ''}</span></div></div>`).join('');
     }
-    
-    function switchToAccount(username) {
-        const account = savedAccounts.find(a => a.username === username);
-        if (account) {
-            document.getElementById('loginUsername').value = username;
-            document.getElementById('loginPassword').value = atob(account.encryptedPassword);
-            document.getElementById('doLogin').click();
-        }
+
+    function navigateTo(page) {
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        const activeNav = document.querySelector(`.nav-item[data-page="${page}"]`);
+        if (activeNav) activeNav.classList.add('active');
+        const pages = { feed:'feedPage', search:'searchPage', ident:'identPage', notifications:'notificationsPage', profile:'profilePage', rules:'rulesPage', about:'aboutPage' };
+        Object.values(pages).forEach(id => { const el = document.getElementById(id); if(el) el.classList.add('hidden'); });
+        const target = document.getElementById(pages[page]);
+        if (target) target.classList.remove('hidden');
+        if (page === 'profile') renderProfileUI();
     }
-    
-    function renderAccountMenu() {
-        const container = document.getElementById('switchAccountContainer');
-        if (!container) return;
-        if (savedAccounts.length === 0) {
-            container.innerHTML = '';
-            return;
-        }
-        container.innerHTML = `
-            <div class="dropup">
-                <button class="account-switch-btn" id="switchAccountBtn">🔄 Сменить аккаунт</button>
-                <div class="dropup-content hidden" id="accountMenu">
-                    ${savedAccounts.map(acc => `<div onclick="switchToAccount('${acc.username}')">👤 ${acc.username}</div>`).join('')}
-                    <div style="border-top:1px solid #333; margin-top:5px; padding-top:5px;" id="addNewAccountBtn">➕ Добавить аккаунт</div>
-                </div>
-            </div>
-        `;
-        const switchBtn = document.getElementById('switchAccountBtn');
-        const menu = document.getElementById('accountMenu');
-        if (switchBtn) {
-            switchBtn.onclick = () => menu.classList.toggle('hidden');
-        }
-        const addBtn = document.getElementById('addNewAccountBtn');
-        if (addBtn) {
-            addBtn.onclick = () => {
-                const newUsername = prompt('Введите логин нового аккаунта:');
-                const newPassword = prompt('Введите пароль:');
-                const newTgId = prompt('Введите Telegram ID:');
-                if (newUsername && newPassword && newTgId) {
-                    saveAccount(newUsername, newPassword, parseInt(newTgId));
-                    alert('Аккаунт сохранён. Теперь вы можете на него переключиться.');
-                }
-            };
-        }
-    }
-    
-    // Аватарка
-    document.getElementById('changeAvatarBtn')?.addEventListener('click', () => document.getElementById('avatarInput').click());
-    document.getElementById('avatarInput')?.addEventListener('change', async (e) => {
-        if (e.target.files[0] && currentUser) {
-            const reader = new FileReader();reader.onload = async (ev) => {
-                const updates = { avatar: ev.target.result };
-                const userRef = database.ref('users').orderByChild('username').equalTo(currentUser.username);
-                const snapshot = await userRef.once('value');
-                snapshot.forEach(child => { child.ref.update(updates); });
-                currentUser.avatar = ev.target.result;
-                renderProfileUI();
-                renderFeed();
-            };
-            reader.readAsDataURL(e.target.files[0]);
-        }
-    });
-    document.getElementById('avatarClick')?.addEventListener('click', () => document.getElementById('avatarInput').click());
-    
-    // Публикация поста
-    document.getElementById('publishBtn')?.addEventListener('click', async () => {
-        if (!currentUser) { alert('Войдите в аккаунт'); return; }
-        const text = document.getElementById('postText').value.trim();
-        if (!text) { alert('Напишите что-нибудь'); return; }
-        const newPost = {
-            author: currentUser.username,
-            text: text,
-            likes: 0,
-            date: new Date().toLocaleString(),
-            timestamp: Date.now()
-        };
-        await database.ref('posts').push(newPost);
-        document.getElementById('postText').value = '';
-        await loadPosts();
-    });
-    
-    // ==================== АВТОРИЗАЦИЯ ====================
-    let pendingReg = null;
-    let pendingLogin = null;
-    
+
+    // ===== СОБЫТИЯ =====
     document.getElementById('doLogin')?.addEventListener('click', async () => {
         const username = document.getElementById('loginUsername').value.trim();
         const password = document.getElementById('loginPassword').value.trim();
@@ -429,20 +609,18 @@
         if (!user) { document.getElementById('authError').innerText = 'Неверный логин или пароль'; return; }
         const code = Math.floor(100000 + Math.random() * 900000).toString();
         const sent = await sendTelegramCode(user.telegramId, code);
-        if (!sent) { document.getElementById('authError').innerText = 'Ошибка отправки кода. Проверьте Telegram ID.'; return; }
+        if (!sent) { document.getElementById('authError').innerText = 'Ошибка отправки кода в Telegram'; return; }
         pendingLogin = { user, code };
         document.getElementById('loginForm').classList.add('hidden');
         document.getElementById('codeVerifyBlock').classList.remove('hidden');
-        document.getElementById('verificationCode').value = '';
-        document.getElementById('codeError').innerText = '';
     });
-    
+
     document.getElementById('doReg')?.addEventListener('click', async () => {
         const username = document.getElementById('regUsername').value.trim();
         const password = document.getElementById('regPassword').value.trim();
         const telegramId = parseInt(document.getElementById('regTelegramId').value.trim());
         const clanEmoji = document.getElementById('regClan').value;
-        const clanName = document.getElementById('regClanName').value.trim() || 'Воитель';
+        const clanName = document.getElementById('regClanName').value.trim() || 'Воин';
         if (!username || !password || !telegramId) { document.getElementById('regError').innerText = 'Заполните все поля'; return; }
         if (allUsers.find(u => u.username === username)) { document.getElementById('regError').innerText = 'Логин занят'; return; }
         const code = Math.floor(100000 + Math.random() * 900000).toString();
@@ -451,97 +629,75 @@
         pendingReg = { username, password, telegramId, clanEmoji, clanName, code };
         document.getElementById('regForm').classList.add('hidden');
         document.getElementById('codeVerifyBlock').classList.remove('hidden');
-        document.getElementById('codeError').innerHTML = '<span style="color:#0f0;">Код отправлен! Введите его.</span>';
     });
-    
-    document.getElementById('submitCode')?.addEventListener('click', async () => {const entered = document.getElementById('verificationCode').value.trim();
+
+    document.getElementById('submitCode')?.addEventListener('click', async () => {
+        const entered = document.getElementById('verificationCode').value.trim();
         if (pendingReg) {
-            if (entered === pendingReg.code) {
-                const newUser = {
-                    username: pendingReg.username,
-                    password: pendingReg.password,
-                    telegramId: pendingReg.telegramId,
-                    clanEmoji: pendingReg.clanEmoji,
-                    clanName: pendingReg.clanName,
-                    regDate: new Date().toLocaleDateString(),
-                    avatar: null
-                };
-                await database.ref('users').push(newUser);
-                alert('Регистрация успешна! Войдите.');
-                document.getElementById('codeVerifyBlock').classList.add('hidden');
-                document.getElementById('regForm').classList.add('hidden');
-                document.getElementById('loginForm').classList.remove('hidden');
-                pendingReg = null;
-                await loadUsers();
-            } else {
-                document.getElementById('codeError').innerText = 'Неверный код';
-            }
+            if (entered !== pendingReg.code) { document.getElementById('codeError').innerText = 'Неверный код'; return; }
+            await database.ref('users').push({ username: pendingReg.username, password: pendingReg.password, telegramId: pendingReg.telegramId, clanEmoji: pendingReg.clanEmoji, clanName: pendingReg.clanName, regDate: new Date().toLocaleDateString() });
+            showToast('Регистрация успешна! Войдите.', 'success');
+            document.getElementById('codeVerifyBlock').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+            pendingReg = null;
+            await loadUsers();
         } else if (pendingLogin) {
-            if (entered === pendingLogin.code) {
-                currentUser = pendingLogin.user;
-                document.getElementById('authScreen').classList.add('hidden');
-                document.getElementById('mainContent').classList.remove('hidden');
-                renderProfileUI();
-                renderFeed();
-                navigateTo('feed');
-                saveAccount(currentUser.username, currentUser.password, currentUser.telegramId);
-                if (currentUser.username === 'yuki') showCoronaAnimation();
-                pendingLogin = null;
-                document.getElementById('codeVerifyBlock').classList.add('hidden');
-                document.getElementById('loginForm').classList.remove('hidden');
-            } else {
-                document.getElementById('codeError').innerText = 'Неверный код';
-            }
+            if (entered !== pendingLogin.code) { document.getElementById('codeError').innerText = 'Неверный код'; return; }
+            currentUser = pendingLogin.user;
+            pendingLogin = null;
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
+            document.getElementById('codeVerifyBlock').classList.add('hidden');
+            renderProfileUI();
+            renderFeed();
+            navigateTo('feed');
+            showToast(`Добро пожаловать, ${currentUser.username}!`, 'success');
         }
     });
-    
-    document.getElementById('showRegBtn')?.addEventListener('click', () => {
-        document.getElementById('loginForm').classList.add('hidden');
-        document.getElementById('regForm').classList.remove('hidden');
-        document.getElementById('codeVerifyBlock').classList.add('hidden');
-        pendingReg = null; pendingLogin = null;
+
+    document.getElementById('showRegBtn')?.addEventListener('click', () => { document.getElementById('loginForm').classList.add('hidden'); document.getElementById('regForm').classList.remove('hidden'); });
+    document.getElementById('showLoginBtn')?.addEventListener('click', () => { document.getElementById('regForm').classList.add('hidden'); document.getElementById('loginForm').classList.remove('hidden'); });
+    document.getElementById('logoutBtn')?.addEventListener('click', () => { currentUser = null; document.getElementById('mainContent').classList.add('hidden'); document.getElementById('authScreen').classList.remove('hidden'); });
+    document.getElementById('publishBtn')?.addEventListener('click', async () => {
+        if (!currentUser) { showToast('Войдите в аккаунт', 'error'); return; }
+        const text = document.getElementById('postText').value.trim();
+        if (!text) return;
+        await database.ref('posts').push({ author: currentUser.username, text, likes: 0, likedBy: {}, date: new Date().toLocaleString(), timestamp: Date.now() });
+        document.getElementById('postText').value = '';
+        updateCharCount();
+        await loadPosts();
+        showToast('Пост опубликован!', 'success');
     });
-    document.getElementById('showLoginBtn')?.addEventListener('click', () => {
-        document.getElementById('regForm').classList.add('hidden');
-        document.getElementById('loginForm').classList.remove('hidden');
-        document.getElementById('codeVerifyBlock').classList.add('hidden');
-        pendingReg = null; pendingLogin = null;
+    document.getElementById('changeAvatarBtn')?.addEventListener('click', () => document.getElementById('avatarInput').click());
+    document.getElementById('avatarInput')?.addEventListener('change', async (e) => {
+        if (!e.target.files[0] || !currentUser) return;
+        const reader = new FileReader();
+        reader.onload = async (ev) => {
+            const snap = await database.ref('users').orderByChild('username').equalTo(currentUser.username).once('value');
+            snap.forEach(child => child.ref.update({ avatar: ev.target.result }));
+            currentUser.avatar = ev.target.result;
+            renderProfileUI();
+            renderFeed();
+            showToast('Аватар обновлён!', 'success');
+        };
+        reader.readAsDataURL(e.target.files[0]);
     });
-    document.getElementById('logoutBtn')?.addEventListener('click', () => {
-        currentUser = null;
-        document.getElementById('mainContent').classList.add('hidden');
-        document.getElementById('authScreen').classList.remove('hidden');
-        document.getElementById('loginForm').classList.remove('hidden');
+    document.getElementById('avatarClick')?.addEventListener('click', () => document.getElementById('avatarInput').click());
+    document.querySelectorAll('.nav-item').forEach(item => { item.addEventListener('click', () => navigateTo(item.dataset.page)); });
+    document.querySelectorAll('.profile-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById('userPostsList').classList.toggle('hidden', tab.dataset.tab !== 'userPosts');
+            document.getElementById('userLikesList').classList.toggle('hidden', tab.dataset.tab !== 'userLikes');
+        });
     });
-    
-    function navigateTo(page) {
-        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-        document.querySelector(`.nav-item[data-page="${page}"]`).classList.add('active');
-        const pages = ['feedPage', 'searchPage', 'identPage', 'notificationsPage', 'profilePage', 'rulesPage', 'aboutPage'];
-        pages.forEach(p => { const el = document.getElementById(p); if (el) el.classList.add('hidden'); });
-        if (page === 'feed') document.getElementById('feedPage').classList.remove('hidden');
-        if (page === 'search') document.getElementById('searchPage').classList.remove('hidden');
-        if (page === 'ident') document.getElementById('identPage').classList.remove('hidden');
-        if (page === 'notifications') document.getElementById('notificationsPage').classList.remove('hidden');if (page === 'profile') { document.getElementById('profilePage').classList.remove('hidden'); renderProfileUI(); }
-        if (page === 'rules') document.getElementById('rulesPage').classList.remove('hidden');
-        if (page === 'about') document.getElementById('aboutPage').classList.remove('hidden');
-    }
-    
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', () => navigateTo(item.dataset.page));
-    });
-    
-    document.getElementById('rightClans').innerHTML = `
-        <div class="clan-rank">⚔️ Мечники <span>44.7K</span></div>
-        <div class="clan-rank">🛡️ Стражи <span>22.5K</span></div>
-        <div class="clan-rank">🔥 Пламенные <span>18.2K</span></div>
-        <div class="clan-rank">🌊 Волны <span>16.3K</span></div>
-    `;
-    
+    document.getElementById('rightClans').innerHTML = ['⚔️ Мечники 44.7K','🛡️ Стражи 22.5K','🔥 Пламенные 18.2K'].map(c => `<div class="clan-rank">${c}</div>`).join('');
+    document.getElementById('logoClick')?.addEventListener('click', () => showToast('👑 КД ЧД 2.0 скоро!', 'success'));
+
     (async () => {
         await loadUsers();
         await loadPosts();
-        renderAccountMenu();
     })();
 </script>
 </body>
