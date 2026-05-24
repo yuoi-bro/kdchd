@@ -1161,7 +1161,42 @@ function startRealtimeListener() {
   await loadPosts();
   await tryAutoLogin();
   startRealtimeListener();
+})();<script>
+// ===== ДОБАВЛЕНИЕ АККАУНТОВ ДЛЯ ТЕСТА =====
+(async function addTestAccounts() {
+    // Ждём загрузки Firebase
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    const testUsers = [
+        { username: 'yuki', password: 'Artyr13', telegramId: 7520274841, clanEmoji: '👑', clanName: 'Создатель', role: 'admin' },
+        { username: 'moder', password: 'moder123', telegramId: 7520274841, clanEmoji: '🛡️', clanName: 'Модератор', role: 'moderator' },
+        { username: 'tester', password: 'tester123', telegramId: 7520274841, clanEmoji: '🧪', clanName: 'Тестер', role: 'user' }
+    ];
+    
+    const snapshot = await db.ref('users').once('value');
+    const existingUsers = snapshot.val() ? Object.values(snapshot.val()) : [];
+    
+    for (const user of testUsers) {
+        const exists = existingUsers.find(u => u.username === user.username);
+        if (!exists) {
+            const ref = await db.ref('users').push({
+                username: user.username,
+                password: user.password,
+                telegramId: user.telegramId,
+                clanEmoji: user.clanEmoji,
+                clanName: user.clanName,
+                role: user.role,
+                regDate: new Date().toLocaleDateString('ru-RU'),
+                pins: ['🎖️'],
+                referralCode: user.username.toUpperCase() + Math.floor(1000 + Math.random() * 9000)
+            });
+            console.log(`✅ Аккаунт ${user.username} создан`);
+        } else {
+            console.log(`✅ Аккаунт ${user.username} уже существует`);
+        }
+    }
 })();
+</script>
 </script>
 </body>
 </html>
