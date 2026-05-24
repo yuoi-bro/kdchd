@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>КД ЧД — Соцсеть без ЛС</title>
+    <title>КД ЧД 0.7 — Мягкое облако</title>
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Golos+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
@@ -104,7 +104,6 @@
 
         .app-container { display: flex; max-width: 1300px; margin: 0 auto; min-height: 100vh; position: relative; z-index: 1; }
 
-        /* Сайдбар */
         .sidebar {
             width: 260px; padding: 28px 16px; border-right: 1px solid var(--border);
             position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; justify-content: space-between;
@@ -141,88 +140,64 @@
         .center-panel { flex: 1; max-width: 600px; padding: 20px; border-right: 1px solid var(--border); }
         .right-panel { width: 320px; padding: 24px 20px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
 
-        .card {
+        .card, .compose-card, .game-card, .bonus-card {
             background: var(--bg-card); border-radius: 18px; padding: 18px; margin-bottom: 14px;
             border: 1px solid var(--border); box-shadow: var(--card-shadow); backdrop-filter: var(--sidebar-blur);
-            transition: all 0.3s ease; animation: slideInCard 0.4s ease forwards;
+            transition: all 0.3s ease; animation: fadeIn 0.4s ease forwards;
         }
-        @keyframes slideInCard { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
         .card-title { font-weight: 700; font-size: 15px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
 
         .post {
             background: var(--bg-card); border-radius: 18px; padding: 18px; margin-bottom: 14px;
-            border: 1px solid var(--border); box-shadow: var(--post-shadow); backdrop-filter: var(--sidebar-blur);
-            transition: all 0.3s ease; animation: postEnter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            border: 1px solid var(--border); box-shadow: var(--post-shadow);
+            transition: all 0.3s ease; position: relative;
         }
-        @keyframes postEnter { from { opacity: 0; transform: translateY(24px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
         .post:hover { border-color: var(--border-strong); transform: translateY(-1px); }
-
         .post-header { display: flex; gap: 12px; margin-bottom: 12px; }
         .post-avatar { width: 46px; height: 46px; border-radius: 50%; background: var(--bg-hover); overflow: hidden; flex-shrink: 0; border: 2px solid var(--border); }
         .post-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .post-author { font-weight: 700; font-size: 15px; }
         .post-time { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-        .pinned-badge { background: var(--accent); color: white; font-size: 10px; padding: 2px 8px; border-radius: 20px; margin-left: 8px; }
-
+        .post-content { margin: 12px 0; line-height: 1.5; word-break: break-word; }
         .post-actions { display: flex; gap: 20px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
         .action-btn { display: flex; align-items: center; gap: 6px; color: var(--text-muted); cursor: pointer; font-size: 14px; padding: 4px 8px; border-radius: 8px; }
         .action-btn:hover { background: var(--bg-hover); color: var(--accent); }
-        .action-btn.liked { color: var(--like-color); }
+        .edit-post-btn, .delete-post-btn { font-size: 12px; color: var(--text-muted); margin-left: 8px; cursor: pointer; }
+        .edit-post-btn:hover { color: var(--accent); }
+        .delete-post-btn:hover { color: #ff4444; }
 
-        .compose-card { background: var(--bg-card); border-radius: 18px; padding: 18px; margin-bottom: 14px; border: 1px solid var(--border); }
         .compose-row { display: flex; gap: 12px; }
         .compose-avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--bg-hover); overflow: hidden; flex-shrink: 0; border: 2px solid var(--border); }
-        textarea {
-            width: 100%; padding: 12px 0; background: transparent; border: none; color: var(--text-primary);
-            font-family: 'Golos Text', sans-serif; font-size: 16px; resize: none; outline: none; min-height: 60px;
-        }
-        textarea::placeholder { color: var(--text-muted); }
+        textarea { width: 100%; padding: 12px 0; background: transparent; border: none; color: var(--text-primary); font-family: inherit; font-size: 16px; resize: none; outline: none; min-height: 60px; }
         .compose-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
-        .char-counter { font-size: 13px; color: var(--text-muted); }
 
-        button, .btn {
-            background: var(--accent); color: white; border: none; padding: 10px 22px; border-radius: 24px;
-            font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s ease;
-        }
+        button, .btn { background: var(--accent); color: white; border: none; padding: 10px 22px; border-radius: 24px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
         button:hover { background: var(--accent-hover); transform: scale(1.02); }
-        button:active { transform: scale(0.98); }
-
-        input, select {
-            width: 100%; padding: 12px 16px; background: var(--bg-input); border: 1px solid var(--border);
-            border-radius: 12px; color: var(--text-primary); margin: 6px 0; font-size: 15px; outline: none;
-        }
+        input, select { width: 100%; padding: 12px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 12px; color: var(--text-primary); margin: 6px 0; outline: none; }
         input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
 
-        .auth-card { max-width: 420px; margin: 40px auto; text-align: center; }
-        .auth-logo { font-family: 'Unbounded', sans-serif; font-size: 48px; font-weight: 900; background: linear-gradient(135deg, var(--logo-from), var(--logo-to)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        .profile-avatar-wrap { width: 90px; height: 90px; border-radius: 50%; border: 4px solid var(--bg-card); margin: -45px auto 0; overflow: hidden; cursor: pointer; }
-        .profile-name { font-family: 'Unbounded', sans-serif; font-size: 20px; font-weight: 700; text-align: center; margin-top: 12px; }
-        .profile-stats { display: flex; justify-content: center; gap: 32px; margin: 16px 0; }
-        .stat-num { font-size: 22px; font-weight: 700; }
-        .profile-tabs { display: flex; border-bottom: 1px solid var(--border); margin: 16px -18px 0; }
-        .profile-tab { flex: 1; text-align: center; padding: 12px; cursor: pointer; color: var(--text-secondary); border-bottom: 2px solid transparent; }
-        .profile-tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
-
-        .online-counter { font-family: 'Unbounded', sans-serif; font-size: 36px; font-weight: 900; color: var(--accent); display: flex; align-items: center; gap: 10px; }
-        .online-dot { width: 10px; height: 10px; border-radius: 50%; background: #22c55e; animation: pulse 2s ease-in-out infinite; }
-        @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.3)} }
-
-        .empty-state { text-align: center; padding: 48px 20px; color: var(--text-muted); }
-        .empty-state .emoji { font-size: 48px; }
-        .toast {
-            position: fixed; bottom: 24px; right: 24px; background: var(--bg-card); border-left: 3px solid var(--accent);
-            border-radius: 12px; padding: 12px 18px; font-size: 14px; z-index: 9999;
-            animation: toastIn 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards;
-        }
-        @keyframes toastIn { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
         .hidden { display: none !important; }
-        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        .toast { position: fixed; bottom: 24px; right: 24px; background: var(--bg-card); border-left: 3px solid var(--accent); border-radius: 12px; padding: 12px 18px; z-index: 9999; animation: toastIn 0.3s ease forwards; }
+        @keyframes toastIn { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
 
-        @media (max-width: 900px) {
-            .sidebar { display: none; }
-            .right-panel { display: none; }
-            .center-panel { border-right: none; max-width: 100%; padding-bottom: 80px; }
-        }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin: 15px 0; }
+        .calendar-day { text-align: center; padding: 12px 4px; background: var(--bg-hover); border-radius: 14px; cursor: pointer; transition: all 0.2s; }
+        .calendar-day.claimed { background: var(--accent); color: white; cursor: default; }
+        .calendar-day.locked { opacity: 0.5; cursor: not-allowed; }
+        .calendar-day.today { border: 2px solid var(--accent); }
+        .timer { text-align: center; font-size: 14px; color: var(--accent); margin-top: 10px; }
+
+        .game-card { cursor: pointer; transition: transform 0.2s; }
+        .game-card:hover { transform: translateY(-3px); background: var(--bg-hover); }
+        .quiz-option { padding: 12px; margin: 8px 0; background: var(--bg-hover); border-radius: 14px; cursor: pointer; }
+        .quiz-option:hover { background: var(--accent-glow); }
+        .clicker-btn { font-size: 48px; padding: 20px; width: 100%; background: var(--accent); border-radius: 100px; }
+        .no-martyr-input { width: 100%; padding: 12px; background: var(--bg-input); border-radius: 12px; color: var(--text-primary); margin: 10px 0; }
+
+        .referral-code { background: var(--bg-hover); padding: 12px; border-radius: 14px; text-align: center; font-family: monospace; font-size: 18px; letter-spacing: 2px; margin: 10px 0; }
+
+        @media (max-width: 900px) { .sidebar, .right-panel { display: none; } .center-panel { border-right: none; max-width: 100%; padding-bottom: 80px; } }
     </style>
 </head>
 <body data-theme="dark">
@@ -230,191 +205,113 @@
 <div class="glass-bg"></div>
 
 <div class="app-container">
-    <!-- САЙДБАР -->
     <div class="sidebar">
         <div>
-            <div class="logo" id="logoClick">КД ЧД</div>
+            <div class="logo" id="logoClick">КД ЧД 0.7</div>
             <nav>
-                <div class="nav-item active" data-page="feed"><span class="nav-emoji">📱</span> Лента</div>
-                <div class="nav-item" data-page="search"><span class="nav-emoji">🔍</span> Поиск</div>
-                <div class="nav-item" data-page="ident"><span class="nav-emoji">🆔</span> Идент</div>
-                <div class="nav-item" data-page="notifications"><span class="nav-emoji">🔔</span> Уведомления</div>
-                <div class="nav-item" data-page="profile"><span class="nav-emoji">👤</span> Профиль</div>
-                <div class="nav-item" data-page="rules"><span class="nav-emoji">📜</span> Правила</div>
-                <div class="nav-item" data-page="about"><span class="nav-emoji">🏢</span> О нас</div>
+                <div class="nav-item active" data-page="feed">📱 Лента</div>
+                <div class="nav-item" data-page="games">🎮 Игры</div>
+                <div class="nav-item" data-page="bonus">📅 Бонусы</div>
+                <div class="nav-item" data-page="referral">🤝 Пригласить</div>
+                <div class="nav-item" data-page="support">💬 Поддержка</div>
+                <div class="nav-item" data-page="profile">👤 Профиль</div>
+                <div class="nav-item" data-page="rules">📜 Правила</div>
+                <div class="nav-item" data-page="about">🏢 О нас</div>
             </nav>
         </div>
         <div>
             <div class="theme-switcher">
-                <button class="theme-btn active" data-theme-val="dark" onclick="setTheme('dark')">🌑 Тёмная</button>
-                <button class="theme-btn" data-theme-val="light" onclick="setTheme('light')">☀️ Белая</button>
-                <button class="theme-btn" data-theme-val="glass" onclick="setTheme('glass')">💎 Стекло</button>
+                <button class="theme-btn active" data-theme-val="dark" onclick="setTheme('dark')">🌑</button>
+                <button class="theme-btn" data-theme-val="light" onclick="setTheme('light')">☀️</button>
+                <button class="theme-btn" data-theme-val="glass" onclick="setTheme('glass')">💎</button>
             </div>
-            <div class="bottom-links">
-                <div>🔴 Статус серверов</div>
-                <div>Условия использования</div>
-                <div>Конфиденциальность</div>
-                <div>© 2026 КД ЧД</div>
-            </div>
-            <div id="switchAccountContainer"></div>
+            <div class="bottom-links"><div>© 2026 КД ЧД — Мягкое облако 0.7</div></div>
             <button class="logout-btn" id="logoutBtn">🚪 Выйти</button>
         </div>
     </div>
 
-    <!-- ЦЕНТР -->
     <div class="center-panel" id="centerPanel">
-
-        <!-- АВТОРИЗАЦИЯ -->
         <div id="authScreen">
-            <div class="auth-card">
-                <div class="auth-logo">КД ЧД</div>
-                <div class="card">
-                    <div id="loginForm">
-                        <input type="text" id="loginUsername" placeholder="Логин">
-                        <input type="password" id="loginPassword" placeholder="Пароль">
-                        <button id="doLogin" style="width:100%">Войти 🚀</button>
-                        <p style="margin-top:14px;">Нет аккаунта? <span id="showRegBtn" style="color:var(--accent);cursor:pointer;">Создать →</span></p>
-                        <div id="authError" style="color:#ff4444;"></div>
-                    </div>
-                    <div id="regForm" class="hidden">
-                        <h3>Создать аккаунт</h3>
-                        <input type="text" id="regUsername" placeholder="Логин">
-                        <input type="password" id="regPassword" placeholder="Пароль">
-                        <input type="number" id="regTelegramId" placeholder="Ваш Telegram ID">
-                        <select id="regClan">
-                            <option value="⚔️">⚔️ Мечники</option>
-                            <option value="🛡️">🛡️ Стражи</option>
-                            <option value="🔥">🔥 Пламенные</option>
-                            <option value="🌊">🌊 Волны</option>
-                            <option value="🎨">🎨 Краски</option>
-                            <option value="🚀">🚀 Звёздные</option>
-                            <option value="🐉">🐉 Драконы</option>
-                        </select>
-                        <input type="text" id="regClanName" placeholder="Название клана">
-                        <button id="doReg" style="width:100%">Зарегистрироваться ✨</button>
-                        <p style="margin-top:12px;"><span id="showLoginBtn" style="color:var(--accent);cursor:pointer;">← Назад</span></p>
-                        <div id="regError" style="color:#ff4444;"></div>
-                    </div>
-                    <div id="codeVerifyBlock" class="hidden">
-                        <div style="text-align:center; padding:20px;">
-                            <div style="font-size:48px;">📨</div>
-                            <p>Код отправлен в Telegram</p>
-                            <input type="text" id="verificationCode" placeholder="000000" maxlength="6">
-                            <button id="submitCode" style="margin-top:12px;">Подтвердить ✅</button>
-                            <div id="codeError" style="color:#ff4444;"></div>
-                        </div>
-                    </div>
+            <div class="card" style="max-width: 450px; margin: 40px auto;">
+                <div class="logo" style="font-size: 48px; text-align: center; margin-bottom: 20px;">КД ЧД</div>
+                <div id="loginForm">
+                    <input type="text" id="loginUsername" placeholder="Логин">
+                    <input type="password" id="loginPassword" placeholder="Пароль">
+                    <button id="doLogin" style="width:100%">Войти 🚀</button>
+                    <p style="margin-top:14px;">Нет аккаунта? <span id="showRegBtn" style="color:var(--accent);cursor:pointer;">Создать →</span></p>
+                    <div id="authError" style="color:#ff4444;"></div>
+                </div>
+                <div id="regForm" class="hidden">
+                    <input type="text" id="regUsername" placeholder="Логин">
+                    <input type="password" id="regPassword" placeholder="Пароль">
+                    <input type="number" id="regTelegramId" placeholder="Ваш Telegram ID">
+                    <select id="regClan"><option value="⚔️">⚔️ Мечники</option><option value="🛡️">🛡️ Стражи</option><option value="🔥">🔥 Пламенные</option><option value="🌊">🌊 Волны</option><option value="🎨">🎨 Краски</option><option value="🚀">🚀 Звёздные</option></select>
+                    <input type="text" id="regClanName" placeholder="Название клана">
+                    <button id="doReg" style="width:100%">Зарегистрироваться ✨</button>
+                    <p style="margin-top:12px;"><span id="showLoginBtn" style="color:var(--accent);cursor:pointer;">← Назад</span></p>
+                    <div id="regError" style="color:#ff4444;"></div>
+                </div>
+                <div id="codeVerifyBlock" class="hidden">
+                    <div style="text-align:center"><div style="font-size:48px;">📨</div><p>Код отправлен в Telegram</p>
+                    <input type="text" id="verificationCode" placeholder="000000" maxlength="6"><button id="submitCode" style="margin-top:12px;">Подтвердить ✅</button>
+                    <div id="codeError" style="color:#ff4444;"></div></div>
                 </div>
             </div>
         </div>
 
-        <!-- ОСНОВНОЙ КОНТЕНТ -->
         <div id="mainContent" class="hidden">
             <div id="feedPage">
                 <div class="compose-card">
-                    <div class="compose-row">
-                        <div class="compose-avatar"><img id="composeAvatar" src=""></div>
-                        <textarea id="postText" rows="2" placeholder="Что нового?" maxlength="500" oninput="updateCharCount()"></textarea>
-                    </div>
-                    <div class="compose-footer">
-                        <span class="char-counter" id="charCounter">500</span>
-                        <button id="publishBtn">Отправить 🚀</button>
-                    </div>
+                    <div class="compose-row"><div class="compose-avatar"><img id="composeAvatar" src=""></div><textarea id="postText" rows="2" placeholder="Что нового? Используй @username для упоминаний" maxlength="500" oninput="updateCharCount()"></textarea></div>
+                    <div class="compose-footer"><span class="char-counter" id="charCounter">500</span><button id="publishBtn">Отправить 🚀</button></div>
                 </div>
                 <div id="postsList"></div>
             </div>
 
+            <div id="gamesPage" class="hidden">
+                <div class="game-card" onclick="showGame('guess')"><div class="card-title">🎲 Угадай клан</div><div>Отгадай клан по эмодзи. 10 вопросов → пин 🧠</div></div>
+                <div class="game-card" onclick="showGame('quiz')"><div class="card-title">🧠 Квиз КД ЧД</div><div>Проверь знание соцсети. 15 ответов → пин 📚</div></div>
+                <div class="game-card" onclick="showGame('clicker')"><div class="card-title">🎯 Кликер «Чёткость»</div><div>Жми на кнопку 10 секунд. Рекорд сохраняется.</div></div>
+                <div class="game-card" onclick="showGame('nomartyr')"><div class="card-title">📝 Тренажёр «Без мата»</div><div>Перепиши фразу без мата → пин 💬</div></div>
+                <div id="gameContent" class="hidden" style="margin-top: 16px;"><div class="card"><div id="gameInner"></div><button onclick="closeGame()" style="margin-top:12px;">Закрыть</button></div></div>
+            </div>
+
+            <div id="bonusPage" class="hidden">
+                <div class="card"><div class="card-title">📅 Чёткая неделя</div><div class="calendar-grid" id="calendarGrid"></div><div class="timer" id="timer"></div><div id="bonusMessage"></div></div>
+            </div>
+
+            <div id="referralPage" class="hidden">
+                <div class="card"><div class="card-title">🤝 Пригласи друга</div><div id="referralCodeDisplay" class="referral-code">Загрузка...</div><p>Отправь этот код другу. Когда он зарегистрируется, ты получишь пин 👑 «Друг».</p><div id="referralStats"></div></div>
+            </div>
+
+            <div id="supportPage" class="hidden">
+                <div class="card"><div class="card-title">💬 Чат поддержки</div><div id="supportMessages" style="height: 300px; overflow-y: auto; margin-bottom: 12px;"></div><div class="compose-row"><textarea id="supportInput" rows="2" placeholder="Напиши сообщение администратору..."></textarea><button id="sendSupportBtn">Отправить</button></div></div>
+            </div>
+
             <div id="profilePage" class="hidden">
-                <div class="card">
-                    <div class="profile-avatar-wrap" id="avatarClick"><img id="profileAvatarImg" src=""></div>
-                    <div class="profile-name" id="profileName"></div>
-                    <div class="profile-handle" id="profileUsername" style="text-align:center; color:var(--text-secondary);"></div>
-                    <div class="profile-stats">
-                        <div><div class="stat-num" id="followersCount">0</div><div>подписчиков</div></div>
-                        <div><div class="stat-num" id="followingCount">0</div><div>подписок</div></div>
-                        <div><div class="stat-num" id="postsCount">0</div><div>постов</div></div>
-                    </div>
-                    <div class="profile-tabs">
-                        <div class="profile-tab active" data-tab="userPosts">Посты</div>
-                        <div class="profile-tab" data-tab="userLikes">Лайки</div>
-                    </div>
-                    <div id="userPostsList"></div>
-                    <div id="userLikesList" class="hidden"></div>
-                </div>
-                <div class="card">
-                    <input type="file" id="avatarInput" accept="image/*" style="display:none">
-                    <button id="changeAvatarBtn" style="width:100%">📷 Сменить аватар</button>
-                </div>
+                <div class="card"><div class="profile-avatar-wrap" id="avatarClick"><img id="profileAvatarImg" src=""></div><div class="profile-name" id="profileName"></div><div class="profile-handle" id="profileUsername" style="text-align:center;color:var(--text-secondary);"></div>
+                <div class="profile-stats"><div><div class="stat-num" id="followersCount">0</div><div>подписчиков</div></div><div><div class="stat-num" id="followingCount">0</div><div>подписок</div></div><div><div class="stat-num" id="postsCount">0</div><div>постов</div></div></div>
+                <div class="profile-tabs"><div class="profile-tab active" data-tab="userPosts">Посты</div><div class="profile-tab" data-tab="userLikes">Лайки</div></div>
+                <div id="userPostsList"></div><div id="userLikesList" class="hidden"></div></div>
+                <div class="card"><input type="file" id="avatarInput" accept="image/*" style="display:none"><button id="changeAvatarBtn" style="width:100%">📷 Сменить аватар</button></div>
             </div>
 
-            <div id="searchPage" class="hidden">
-                <div class="card">
-                    <input type="text" id="searchInput" placeholder="Найти пользователя..." oninput="doSearch()">
-                    <div id="searchResults"></div>
-                </div>
-            </div>
-
-            <div id="identPage" class="hidden">
-                <div class="card" style="text-align:center;">
-                    <div style="font-size:48px;">🆔</div>
-                    <div style="font-size:12px; color:var(--text-secondary);">Ваш идентификатор</div>
-                    <div style="font-size:24px; font-weight:700;" id="identId">@—</div>
-                </div>
-            </div>
-
-            <div id="notificationsPage" class="hidden">
-                <div class="empty-state"><div class="emoji">🔔</div><p>Уведомлений нет</p></div>
-            </div>
-
-            <div id="rulesPage" class="hidden">
-                <div class="card">
-                    <div class="card-title">📜 Правила КД ЧД</div>
-                    <div style="font-size:14px; line-height:1.7; color:var(--text-secondary);">
-                        <p><strong>❌ Запрещено:</strong> мат, оскорбления, спам, 18+ контент.</p>
-                        <p><strong>⚖️ Наказания:</strong> предупреждение → мут → бан.</p>
-                        <p><strong>💙 Уважайте друг друга.</strong></p>
-                        <div style="margin-top:16px;">✍️ Создатель: Артур Анкухин</div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="aboutPage" class="hidden">
-                <div class="card">
-                    <div class="card-title">🏢 О компании</div>
-                    <div style="font-size:14px; line-height:1.7; color:var(--text-secondary);">
-                        <p>KDCHD Studio by Yuki</p>
-                        <p>Создатель: Анкухин Артур Дмитриевич</p>
-                        <p>Контакты: @data_drop</p>
-                        <div>© 2026 КД ЧД — отечественная соцсеть без ЛС</div>
-                    </div>
-                </div>
-            </div>
+            <div id="rulesPage" class="hidden"><div class="card"><div class="card-title">📜 Правила КД ЧД</div><div style="font-size:14px;"><p>❌ Запрещены: мат, оскорбления, спам, 18+</p><p>⚖️ Наказания: предупреждение → мут → бан</p><p>📌 Авторские права: @yuki</p></div></div></div>
+            <div id="aboutPage" class="hidden"><div class="card"><div class="card-title">🏢 О КД ЧД</div><div>Версия 0.7 «Мягкое облако»<br>Создатель: Артур Анкухин<br>Контакты: @data_drop</div></div></div>
         </div>
     </div>
 
-    <!-- ПРАВАЯ ПАНЕЛЬ -->
     <div class="right-panel">
-        <div class="card">
-            <div class="card-title">🌐 Сейчас в сети</div>
-            <div class="online-counter"><span class="online-dot"></span><span id="onlineCount">1</span></div>
-        </div>
-        <div class="card">
-            <div class="card-title">🏆 Топ кланов</div>
-            <div id="rightClans"></div>
-        </div>
-        <div class="card">
-            <div class="card-title">🌡️ Тема</div>
-            <div class="theme-switcher" style="margin-bottom:0;">
-                <button class="theme-btn" data-theme-val="dark" onclick="setTheme('dark')">🌑</button>
-                <button class="theme-btn" data-theme-val="light" onclick="setTheme('light')">☀️</button>
-                <button class="theme-btn" data-theme-val="glass" onclick="setTheme('glass')">💎</button>
-            </div>
-        </div>
+        <div class="card"><div class="card-title">🌐 Онлайн</div><div class="online-counter"><span class="online-dot"></span><span id="onlineCount">1</span></div></div>
+        <div class="card"><div class="card-title">🏆 Топ кланов</div><div id="rightClans"></div></div>
+        <div class="card"><div class="card-title">📅 Бонус дня</div><div id="bonusOfDay">Заходи в календарь!</div></div>
     </div>
 </div>
 
 <script>
-    // ===== FIREBASE НАСТРОЙКИ =====
+    // ===== НАСТРОЙКИ =====
+    const BOT_TOKEN = 'YOUR_BOT_TOKEN';
+    const YOUR_TELEGRAM_ID = 7520274841;
     const firebaseConfig = {
         apiKey: "AIzaSyBwpAU96exT4dxzWIRGS5nzwv1LhLBNqdk",
         authDomain: "kdchd-374dc.firebaseapp.com",
@@ -425,453 +322,94 @@
         appId: "1:710757306837:web:ebc045369496fd56dc6d5c"
     };
     firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-
-    const BOT_TOKEN = '8811392757:AAGzr6Q8g4QMuCcTJVEekDi5ZXfMibuHfgI';
-    const YOUR_TELEGRAM_ID = 7520274841;
+    const db = firebase.database();
 
     let currentUser = null;
     let allUsers = [];
     let allPosts = [];
-    let onlineUsers = new Set();
-    let pendingReg = null, pendingLogin = null;
-
-    // ===== ФУНКЦИИ =====
-    function setTheme(theme) {
-        document.body.setAttribute('data-theme', theme);
-        localStorage.setItem('kdchd_theme', theme);
-        document.querySelectorAll('.theme-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.themeVal === theme);
-        });
-    }
-    setTheme(localStorage.getItem('kdchd_theme') || 'dark');
-
-    function showToast(msg, type = 'info') {
-        const el = document.createElement('div');
-        el.className = 'toast';
-        if (type === 'error') el.style.borderLeftColor = '#ff4444';
-        if (type === 'success') el.style.borderLeftColor = '#22c55e';
-        el.textContent = msg;
-        document.body.appendChild(el);
-        setTimeout(() => { el.remove(); }, 3000);
-    }
-
-    function updateOnlineCount() {
-        document.getElementById('onlineCount').innerText = onlineUsers.size || 1;
-    }
-    onlineUsers.add('demo');
-    updateOnlineCount();
-
-    function censorText(text) {
-        const bad = ['бля', 'сука', 'хуй', 'пизд', 'еба', 'блять', 'нахуй', 'пидор'];
-        let filtered = text;
-        bad.forEach(w => { const re = new RegExp(w, 'gi'); filtered = filtered.replace(re, '****'); });
-        return filtered;
-    }
-
-    function updateCharCount() {
-        const text = document.getElementById('postText').value;
-        document.getElementById('charCounter').textContent = 500 - text.length;
-    }
-
-    function getAvatarUrl(user) {
-        if (user?.avatar) return user.avatar;
-        const emoji = user?.clanEmoji || '?';
-        return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23222'/%3E%3Ctext x='50' y='70' text-anchor='middle' fill='white' font-size='40'%3E${encodeURIComponent(emoji)}%3C/text%3E%3C/svg%3E`;
-    }
 
     async function sendTelegramCode(chatId, code) {
         try {
             const r = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: chatId, text: `🔐 Ваш код: ${code}\nНикому не сообщайте!` })
+                body: JSON.stringify({ chat_id: chatId, text: `🔐 Код: ${code}` })
             });
-            const d = await r.json();
-            return d.ok === true;
+            return (await r.json()).ok;
         } catch(e) { return false; }
     }
 
-    // ===== ЗАГРУЗКА ДАННЫХ =====
     async function loadUsers() {
-        const snapshot = await database.ref('users').once('value');
-        const data = snapshot.val();
-        allUsers = data ? Object.values(data) : [];
+        const snap = await db.ref('users').once('value');
+        allUsers = snap.val() ? Object.values(snap.val()) : [];
         if (!allUsers.find(u => u.username === 'yuki')) {
-            await database.ref('users').push({
-                username: 'yuki', password: 'Artyr13', telegramId: YOUR_TELEGRAM_ID,
-                clanEmoji: '👑', clanName: 'Создатель', regDate: new Date().toLocaleDateString()
-            });
-            await database.ref('users').push({
-                username: 'kdchd_official', password: 'KDCHD1', telegramId: YOUR_TELEGRAM_ID,
-                clanEmoji: '📢', clanName: 'Официальный канал', regDate: new Date().toLocaleDateString()
-            });
+            await db.ref('users').push({ username: 'yuki', password: 'Artyr13', telegramId: YOUR_TELEGRAM_ID, clanEmoji: '👑', clanName: 'Создатель', regDate: new Date().toLocaleDateString() });
             await loadUsers();
         }
     }
 
     async function loadPosts() {
-        const snapshot = await database.ref('posts').once('value');
-        const data = snapshot.val();
-        allPosts = data ? Object.entries(data).map(([key, val]) => ({ ...val, _key: key })) : [];
-        if (allPosts.length === 0) {
-            await database.ref('posts').push({
-                author: 'kdchd_official', text: '🔥 Добро пожаловать в КД ЧД! Здесь нет ЛС, только посты, кланы и уют.', likes: 0, likedBy: {}, date: new Date().toLocaleString(), timestamp: Date.now()
-            });
-            await loadPosts();
-        }
+        const snap = await db.ref('posts').once('value');
+        allPosts = snap.val() ? Object.entries(snap.val()).map(([k,v]) => ({ ...v, _key: k })) : [];
         renderFeed();
     }
 
     function renderFeed() {
         const container = document.getElementById('postsList');
         if (!container) return;
-        if (allPosts.length === 0) {
-            container.innerHTML = '<div class="empty-state"><div class="emoji">📭</div><p>Постов пока нет</p></div>';
-            return;
-        }
         const sorted = [...allPosts].sort((a,b) => b.timestamp - a.timestamp);
         container.innerHTML = sorted.map(p => {
             const user = allUsers.find(u => u.username === p.author);
-            const avatar = getAvatarUrl(user);
-            const liked = currentUser && p.likedBy && p.likedBy[currentUser.username];
-            return `<div class="post">
-                <div class="post-header">
-                    <div class="post-avatar"><img src="${avatar}" onerror="this.src=''"></div>
-                    <div><div class="post-author">${p.author} ${p.author === 'kdchd_official' ? '<span class="pinned-badge">Официальный</span>' : ''}</div>
-                    <div class="post-time">${p.date}</div></div>
-                </div>
-                <div class="post-content">${censorText(p.text)}</div>
-                <div class="post-actions">
-                    <div class="action-btn ${liked ? 'liked' : ''}" onclick="toggleLike('${p._key}', this)">
-                        <span>${liked ? '❤️' : '🤍'}</span> <span id="like-count-${p._key}">${p.likes || 0}</span>
-                    </div>
-                </div>
+            const avatar = user?.avatar || `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23222'/%3E%3Ctext x='50' y='70' text-anchor='middle' fill='white' font-size='40'%3E${user?.clanEmoji || '?'}%3C/text%3E%3C/svg%3E`;
+            const canEdit = currentUser && p.author === currentUser.username && (Date.now() - p.timestamp < 300000);
+            return `<div class="post" data-id="${p._key}">
+                <div class="post-header"><div class="post-avatar"><img src="${avatar}"></div><div><div class="post-author">${p.author}</div><div class="post-time">${p.date}</div></div></div>
+                <div class="post-content" id="post-content-${p._key}">${censorText(p.text)}</div>
+                ${canEdit ? `<div class="edit-post-btn" onclick="editPost('${p._key}')">✏️ Редактировать</div>` : ''}
+                <div class="post-actions"><div class="action-btn" onclick="likePost('${p._key}')">❤️ ${p.likes || 0}</div><div class="action-btn" onclick="copyLink('${p._key}')">🔗 Поделиться</div></div>
             </div>`;
         }).join('');
     }
 
-    window.toggleLike = async function(postKey, btn) {
-        if (!currentUser) { showToast('Войдите в аккаунт', 'error'); return; }
-        const post = allPosts.find(p => p._key === postKey);
-        if (!post) return;
-        const likedBy = post.likedBy || {};
-        const already = likedBy[currentUser.username];
-        const newLikes = already ? (post.likes || 1) - 1 : (post.likes || 0) + 1;
-        const newLikedBy = { ...likedBy };
-        if (already) delete newLikedBy[currentUser.username];
-        else newLikedBy[currentUser.username] = true;
-        await database.ref('posts/' + postKey).update({ likes: newLikes, likedBy: newLikedBy });
-        post.likes = newLikes;
-        post.likedBy = newLikedBy;
-        document.getElementById(`like-count-${postKey}`).textContent = newLikes;
-        btn.classList.toggle('liked', !!newLikedBy[currentUser.username]);
-        btn.querySelector('span:first-child').textContent = newLikedBy[currentUser.username] ? '❤️' : '🤍';
-    };
-
-    function renderProfileUI() {
+    window.likePost = async (key) => {
         if (!currentUser) return;
-        const avatar = getAvatarUrl(currentUser);
-        document.getElementById('profileName').innerText = currentUser.username;
-        document.getElementById('profileUsername').innerText = `@${currentUser.username} · ${currentUser.clanEmoji || ''} ${currentUser.clanName || ''}`;
-        document.getElementById('identId').innerText = `@${currentUser.username}`;
-        document.getElementById('profileAvatarImg').src = avatar;
-        document.getElementById('composeAvatar').src = avatar;
-        const userPosts = allPosts.filter(p => p.author === currentUser.username);
-        document.getElementById('postsCount').innerText = userPosts.length;
-        document.getElementById('userPostsList').innerHTML = userPosts.length ? userPosts.map(p => `<div class="post"><div class="post-content">${censorText(p.text)}</div><div style="font-size:12px;">❤️ ${p.likes || 0}</div></div>`).join('') : '<div class="empty-state">Постов нет</div>';
-    }
-
-    function doSearch() {
-        const query = document.getElementById('searchInput')?.value.toLowerCase();
-        const results = document.getElementById('searchResults');
-        if (!query) { results.innerHTML = '<div class="empty-state"><div class="emoji">🔎</div><p>Введите имя</p></div>'; return; }
-        const found = allUsers.filter(u => u.username.toLowerCase().includes(query));
-        if (!found.length) { results.innerHTML = '<div class="empty-state">Ничего не найдено</div>'; return; }
-        results.innerHTML = found.map(u => `<div style="display:flex; gap:12px; padding:10px;"><div style="width:40px;height:40px;border-radius:50%;overflow:hidden;"><img src="${getAvatarUrl(u)}" style="width:100%"></div><div><b>${u.username}</b><br><span style="font-size:12px;">${u.clanName || ''}</span></div></div>`).join('');
-    }
-
-    function navigateTo(page) {
-        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-        const activeNav = document.querySelector(`.nav-item[data-page="${page}"]`);
-        if (activeNav) activeNav.classList.add('active');
-        const pages = { feed:'feedPage', search:'searchPage', ident:'identPage', notifications:'notificationsPage', profile:'profilePage', rules:'rulesPage', about:'aboutPage' };
-        Object.values(pages).forEach(id => { const el = document.getElementById(id); if(el) el.classList.add('hidden'); });
-        const target = document.getElementById(pages[page]);
-        if (target) target.classList.remove('hidden');
-        if (page === 'profile') renderProfileUI();
-    }
-
-    // ===== СОБЫТИЯ =====
-    document.getElementById('doLogin')?.addEventListener('click', async () => {
-        const username = document.getElementById('loginUsername').value.trim();
-        const password = document.getElementById('loginPassword').value.trim();
-        const user = allUsers.find(u => u.username === username && u.password === password);
-        if (!user) { document.getElementById('authError').innerText = 'Неверный логин или пароль'; return; }
-        const code = Math.floor(100000 + Math.random() * 900000).toString();
-        const sent = await sendTelegramCode(user.telegramId, code);
-        if (!sent) { document.getElementById('authError').innerText = 'Ошибка отправки кода в Telegram'; return; }
-        pendingLogin = { user, code };
-        document.getElementById('loginForm').classList.add('hidden');
-        document.getElementById('codeVerifyBlock').classList.remove('hidden');
-    });
-
-    document.getElementById('doReg')?.addEventListener('click', async () => {
-        const username = document.getElementById('regUsername').value.trim();
-        const password = document.getElementById('regPassword').value.trim();
-        const telegramId = parseInt(document.getElementById('regTelegramId').value.trim());
-        const clanEmoji = document.getElementById('regClan').value;
-        const clanName = document.getElementById('regClanName').value.trim() || 'Воин';
-        if (!username || !password || !telegramId) { document.getElementById('regError').innerText = 'Заполните все поля'; return; }
-        if (allUsers.find(u => u.username === username)) { document.getElementById('regError').innerText = 'Логин занят'; return; }
-        const code = Math.floor(100000 + Math.random() * 900000).toString();
-        const sent = await sendTelegramCode(telegramId, code);
-        if (!sent) { document.getElementById('regError').innerText = 'Ошибка отправки кода'; return; }
-        pendingReg = { username, password, telegramId, clanEmoji, clanName, code };
-        document.getElementById('regForm').classList.add('hidden');
-        document.getElementById('codeVerifyBlock').classList.remove('hidden');
-    });
-
-    document.getElementById('submitCode')?.addEventListener('click', async () => {
-        const entered = document.getElementById('verificationCode').value.trim();
-        if (pendingReg) {
-            if (entered !== pendingReg.code) { document.getElementById('codeError').innerText = 'Неверный код'; return; }
-            await database.ref('users').push({ username: pendingReg.username, password: pendingReg.password, telegramId: pendingReg.telegramId, clanEmoji: pendingReg.clanEmoji, clanName: pendingReg.clanName, regDate: new Date().toLocaleDateString() });
-            showToast('Регистрация успешна! Войдите.', 'success');
-            document.getElementById('codeVerifyBlock').classList.add('hidden');
-            document.getElementById('loginForm').classList.remove('hidden');
-            pendingReg = null;
-            await loadUsers();
-        } else if (pendingLogin) {
-            if (entered !== pendingLogin.code) { document.getElementById('codeError').innerText = 'Неверный код'; return; }
-            currentUser = pendingLogin.user;
-            pendingLogin = null;
-            document.getElementById('authScreen').classList.add('hidden');
-            document.getElementById('mainContent').classList.remove('hidden');
-            document.getElementById('codeVerifyBlock').classList.add('hidden');
-            renderProfileUI();
-            renderFeed();
-            navigateTo('feed');
-            showToast(`Добро пожаловать, ${currentUser.username}!`, 'success');
+        const post = allPosts.find(p => p._key === key);
+        if (post) {
+            const newLikes = (post.likes || 0) + 1;
+            await db.ref('posts/' + key).update({ likes: newLikes });
+            await loadPosts();
         }
-    });
+    };
 
-    document.getElementById('showRegBtn')?.addEventListener('click', () => { document.getElementById('loginForm').classList.add('hidden'); document.getElementById('regForm').classList.remove('hidden'); });
-    document.getElementById('showLoginBtn')?.addEventListener('click', () => { document.getElementById('regForm').classList.add('hidden'); document.getElementById('loginForm').classList.remove('hidden'); });
-    document.getElementById('logoutBtn')?.addEventListener('click', () => { currentUser = null; document.getElementById('mainContent').classList.add('hidden'); document.getElementById('authScreen').classList.remove('hidden'); });
+    window.editPost = async (key) => {
+        const newText = prompt('Введите новый текст поста (можно @упоминать):');
+        if (newText) {
+            await db.ref('posts/' + key).update({ text: newText });
+            await loadPosts();
+        }
+    };
+
+    function censorText(t) { const bad = ['бля','сука','хуй','пизд','еба','блять','нахуй']; let f=t; bad.forEach(w=>{ const re=new RegExp(w,'gi'); f=f.replace(re,'****'); }); return f; }
+
     document.getElementById('publishBtn')?.addEventListener('click', async () => {
-        if (!currentUser) { showToast('Войдите в аккаунт', 'error'); return; }
-        const text = document.getElementById('postText').value.trim();
-        if (!text) return;
-        await database.ref('posts').push({ author: currentUser.username, text, likes: 0, likedBy: {}, date: new Date().toLocaleString(), timestamp: Date.now() });
-        document.getElementById('postText').value = '';
-        updateCharCount();
-        await loadPosts();
-        showToast('Пост опубликован!', 'success');
-    });
-    document.getElementById('changeAvatarBtn')?.addEventListener('click', () => document.getElementById('avatarInput').click());
-    document.getElementById('avatarInput')?.addEventListener('change', async (e) => {
-        if (!e.target.files[0] || !currentUser) return;
-        const reader = new FileReader();
-        reader.onload = async (ev) => {
-            const snap = await database.ref('users').orderByChild('username').equalTo(currentUser.username).once('value');
-            snap.forEach(child => child.ref.update({ avatar: ev.target.result }));
-            currentUser.avatar = ev.target.result;
-            renderProfileUI();
-            renderFeed();
-            showToast('Аватар обновлён!', 'success');
-        };
-        reader.readAsDataURL(e.target.files[0]);
-    });
-    document.getElementById('avatarClick')?.addEventListener('click', () => document.getElementById('avatarInput').click());
-    document.querySelectorAll('.nav-item').forEach(item => { item.addEventListener('click', () => navigateTo(item.dataset.page)); });
-    document.querySelectorAll('.profile-tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-            document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            document.getElementById('userPostsList').classList.toggle('hidden', tab.dataset.tab !== 'userPosts');
-            document.getElementById('userLikesList').classList.toggle('hidden', tab.dataset.tab !== 'userLikes');
+        if (!currentUser) return;
+        let text = document.getElementById('postText').value;
+        if (!text.trim()) return;
+        text = text.replace(/@(\w+)/g, (match, username) => {
+            if (allUsers.find(u => u.username === username)) return `<span style="color:var(--accent); cursor:pointer;" onclick="alert('Пользователь ${username}')">${match}</span>`;
+            return match;
         });
-    });
-    document.getElementById('rightClans').innerHTML = ['⚔️ Мечники 44.7K','🛡️ Стражи 22.5K','🔥 Пламенные 18.2K'].map(c => `<div class="clan-rank">${c}</div>`).join('');
-    document.getElementById('logoClick')?.addEventListener('click', () => showToast('👑 КД ЧД 2.0 скоро!', 'success'));
-
-    (async () => {
-        await loadUsers();
+        await db.ref('posts').push({ author: currentUser.username, text, likes: 0, date: new Date().toLocaleString(), timestamp: Date.now() });
+        document.getElementById('postText').value = '';
         await loadPosts();
-        // ===== ЗАПОМНИТЬ МЕНЯ (30 дней) =====
-function saveLoginSession(username, password) {
-    const sessionData = {
-        username: username,
-        password: password,
-        expires: Date.now() + (30 * 24 * 60 * 60 * 1000) // 30 дней
-    };
-    localStorage.setItem('kdchd_session', JSON.stringify(sessionData));
-}
+        showToast('Пост опубликован!');
+    });
 
-function loadLoginSession() {
-    const sessionData = JSON.parse(localStorage.getItem('kdchd_session'));
-    if (sessionData && sessionData.expires > Date.now()) {
-        return { username: sessionData.username, password: sessionData.password };
-    }
-    localStorage.removeItem('kdchd_session');
-    return null;
-}
+    function showToast(msg) { const t=document.createElement('div'); t.className='toast'; t.innerText=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),3000); }
+    function setTheme(t) { document.body.setAttribute('data-theme',t); localStorage.setItem('kdchd_theme',t); }
+    document.querySelectorAll('.nav-item').forEach(i=>i.addEventListener('click',()=>{ const p=i.dataset.page; document.querySelectorAll('#mainContent>div').forEach(d=>d.classList.add('hidden')); document.getElementById(p+'Page')?.classList.remove('hidden'); }));
+    document.getElementById('logoutBtn')?.addEventListener('click',()=>{ currentUser=null; document.getElementById('mainContent').classList.add('hidden'); document.getElementById('authScreen').classList.remove('hidden'); });
 
-function clearLoginSession() {
-    localStorage.removeItem('kdchd_session');
-}
-
-// Автоматический вход при загрузке страницы
-async function autoLogin() {
-    const session = loadLoginSession();
-    if (session && !currentUser) {
-        const username = session.username;
-        const password = session.password;
-        const user = allUsers.find(u => u.username === username && u.password === password);
-        if (user) {
-            // Отправка кода в Telegram для автовхода
-            const code = Math.floor(100000 + Math.random() * 900000).toString();
-            const sent = await sendTelegramCode(user.telegramId, code);
-            if (sent) {
-                pendingLogin = { user, code };
-                // Автоматически подтверждаем код (только если доверенное устройство)
-                // Но для безопасности лучше ввести код. Однако для удобства сделаем авто-подтверждение
-                // ТОЛЬКО для этого устройства (помечаем в localStorage)
-                const trusted = localStorage.getItem('kdchd_trusted_' + username);
-                if (trusted === 'true') {
-                    // Если устройство доверенное, автоматически подтверждаем
-                    currentUser = user;
-                    document.getElementById('authScreen').classList.add('hidden');
-                    document.getElementById('mainContent').classList.remove('hidden');
-                    renderProfileUI();
-                    renderFeed();
-                    navigateTo('feed');
-                    showToast(`С возвращением, ${username}! 👑`, 'success');
-                    pendingLogin = null;
-                    return;
-                }
-                // Если не доверенное — показываем окно ввода кода
-                document.getElementById('loginForm').classList.add('hidden');
-                document.getElementById('codeVerifyBlock').classList.remove('hidden');
-                document.getElementById('codeError').innerHTML = '🔐 Введите код из Telegram для входа';
-            } else {
-                console.log('Автовход не удался, нужен ручной вход');
-            }
-        }
-    }
-}
-
-// Запомнить меня (чекбокс)
-// Добавляем чекбокс в форму входа
-function addRememberMeCheckbox() {
-    const loginForm = document.getElementById('loginForm');
-    const btn = loginForm.querySelector('button');
-    const rememberDiv = document.createElement('div');
-    rememberDiv.className = 'flex-between';
-    rememberDiv.style.margin = '12px 0 4px';
-    rememberDiv.style.fontSize = '14px';
-    rememberDiv.innerHTML = `
-        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
-            <input type="checkbox" id="rememberMeCheckbox" style="width:18px; height:18px; margin:0;">
-            <span>Запомнить меня на 30 дней</span>
-        </label>
-    `;
-    btn.parentNode.insertBefore(rememberDiv, btn);
-}
-
-// Модифицируем обработчик входа
-function patchLoginHandler() {
-    const originalLoginHandler = document.getElementById('doLogin').click;
-    const loginBtn = document.getElementById('doLogin');
-    const newLoginHandler = async () => {
-        const username = document.getElementById('loginUsername').value.trim();
-        const password = document.getElementById('loginPassword').value.trim();
-        const remember = document.getElementById('rememberMeCheckbox')?.checked || false;
-        const user = allUsers.find(u => u.username === username && u.password === password);
-        if (!user) { document.getElementById('authError').innerText = '❌ Неверный логин или пароль'; return; }
-        
-        const code = Math.floor(100000 + Math.random() * 900000).toString();
-        const sent = await sendTelegramCode(user.telegramId, code);
-        if (!sent) { document.getElementById('authError').innerText = '❌ Ошибка отправки кода'; return; }
-        
-        pendingLogin = { user, code, remember };
-        document.getElementById('loginForm').classList.add('hidden');
-        document.getElementById('codeVerifyBlock').classList.remove('hidden');
-        document.getElementById('codeError').innerHTML = '📨 Код отправлен в Telegram. Введите его.';
-    };
-    loginBtn.onclick = newLoginHandler;
-}
-
-// Модифицируем подтверждение кода для учёта "Запомнить меня"
-function patchCodeSubmit() {
-    const originalSubmit = document.getElementById('submitCode').click;
-    const submitBtn = document.getElementById('submitCode');
-    const newSubmitHandler = async () => {
-        const entered = document.getElementById('verificationCode').value.trim();
-        if (pendingLogin) {
-            if (entered !== pendingLogin.code) {
-                document.getElementById('codeError').innerText = '❌ Неверный код';
-                return;
-            }
-            currentUser = pendingLogin.user;
-            if (pendingLogin.remember) {
-                saveLoginSession(currentUser.username, currentUser.password);
-                localStorage.setItem('kdchd_trusted_' + currentUser.username, 'true');
-            }
-            pendingLogin = null;
-            document.getElementById('authScreen').classList.add('hidden');
-            document.getElementById('mainContent').classList.remove('hidden');
-            renderProfileUI();
-            renderFeed();
-            navigateTo('feed');
-            showToast(`👋 Добро пожаловать, ${currentUser.username}!`, 'success');
-            document.getElementById('codeVerifyBlock').classList.add('hidden');
-            document.getElementById('loginForm').classList.remove('hidden');
-        } else if (pendingReg) {
-            if (entered !== pendingReg.code) {
-                document.getElementById('codeError').innerText = '❌ Неверный код';
-                return;
-            }
-            await database.ref('users').push({
-                username: pendingReg.username, password: pendingReg.password,
-                telegramId: pendingReg.telegramId, clanEmoji: pendingReg.clanEmoji,
-                clanName: pendingReg.clanName, regDate: new Date().toLocaleDateString(), avatar: null
-            });
-            showToast('🎉 Регистрация успешна! Войдите.', 'success');
-            document.getElementById('codeVerifyBlock').classList.add('hidden');
-            document.getElementById('loginForm').classList.remove('hidden');
-            pendingReg = null;
-            await loadUsers();
-        }
-    };
-    submitBtn.onclick = newSubmitHandler;
-}
-
-// Очищаем сессию при выходе
-function patchLogout() {
-    const logoutBtn = document.getElementById('logoutBtn');
-    const originalLogout = logoutBtn.onclick;
-    logoutBtn.onclick = () => {
-        if (currentUser) {
-            localStorage.removeItem('kdchd_trusted_' + currentUser.username);
-            clearLoginSession();
-        }
-        currentUser = null;
-        document.getElementById('mainContent').classList.add('hidden');
-        document.getElementById('authScreen').classList.remove('hidden');
-        showToast('До свидания! 👋');
-    };
-}
-
-// Запускаем всё после загрузки
-setTimeout(() => {
-    addRememberMeCheckbox();
-    patchLoginHandler();
-    patchCodeSubmit();
-    patchLogout();
-    autoLogin();
-}, 500);
-    })();
+    (async () => { await loadUsers(); await loadPosts(); })();
 </script>
 </body>
 </html>
