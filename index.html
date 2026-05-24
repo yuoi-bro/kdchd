@@ -698,6 +698,179 @@
     (async () => {
         await loadUsers();
         await loadPosts();
+        // ===== ЗАПОМНИТЬ МЕНЯ (30 дней) =====
+function saveLoginSession(username, password) {
+    const sessionData = {
+        username: username,
+        password: password,
+        expires: Date.now() + (30 * 24 * 60 * 60 * 1000) // 30 дней
+    };
+    localStorage.setItem('kdchd_session', JSON.stringify(sessionData));
+}
+
+function loadLoginSession() {
+    const sessionData = JSON.parse(localStorage.getItem('kdchd_session'));
+    if (sessionData && sessionData.expires > Date.now()) {
+        return { username: sessionData.username, password: sessionData.password };
+    }
+    localStorage.removeItem('kdchd_session');
+    return null;
+}
+
+function clearLoginSession() {
+    localStorage.removeItem('kdchd_session');
+}
+
+// Автоматический вход при загрузке страницы
+async function autoLogin() {
+    const session = loadLoginSession();
+    if (session && !currentUser) {
+        const username = session.username;
+        const password = session.password;
+        const user = allUsers.find(u => u.username === username && u.password === password);
+        if (user) {
+            // Отправка кода в Telegram для автовхода
+            const code = Math.floor(100000 + Math.random() * 900000).toString();
+            const sent = await sendTelegramCode(user.telegramId, code);
+            if (sent) {
+                pendingLogin = { user, code };
+                // Автоматически подтверждаем код (только если доверенное устройство)
+                // Но для безопасности лучше ввести код. Однако для удобства сделаем авто-подтверждение
+                // ТОЛЬКО для этого устройства (помечаем в localStorage)
+                const trusted = localStorage.getItem('kdchd_trusted_' + username);
+                if (trusted === 'true') {
+                    // Если устройство доверенное, автоматически подтверждаем
+                    currentUser = user;
+                    document.getElementById('authScreen').classList.add('hidden');
+                    document.getElementById('mainContent').classList.remove('hidden');
+                    renderProfileUI();
+                    renderFeed();
+                    navigateTo('feed');
+                    showToast(`С возвращением, ${username}! 👑`, 'success');
+                    pendingLogin = null;
+                    return;
+                }
+                // Если не доверенное — показываем окно ввода кода
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('codeVerifyBlock').classList.remove('hidden');
+                document.getElementById('codeError').innerHTML = '🔐 Введите код из Telegram для входа';
+            } else {
+                console.log('Автовход не удался, нужен ручной вход');
+            }
+        }
+    }
+}
+
+// Запомнить меня (чекбокс)
+// Добавляем чекбокс в форму входа
+function addRememberMeCheckbox() {
+    const loginForm = document.getElementById('loginForm');
+    const btn = loginForm.querySelector('button');
+    const rememberDiv = document.createElement('div');
+    rememberDiv.className = 'flex-between';
+    rememberDiv.style.margin = '12px 0 4px';
+    rememberDiv.style.fontSize = '14px';
+    rememberDiv.innerHTML = `
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+            <input type="checkbox" id="rememberMeCheckbox" style="width:18px; height:18px; margin:0;">
+            <span>Запомнить меня на 30 дней</span>
+        </label>
+    `;
+    btn.parentNode.insertBefore(rememberDiv, btn);
+}
+
+// Модифицируем обработчик входа
+function patchLoginHandler() {
+    const originalLoginHandler = document.getElementById('doLogin').click;
+    const loginBtn = document.getElementById('doLogin');
+    const newLoginHandler = async () => {
+        const username = document.getElementById('loginUsername').value.trim();
+        const password = document.getElementById('loginPassword').value.trim();
+        const remember = document.getElementById('rememberMeCheckbox')?.checked || false;
+        const user = allUsers.find(u => u.username === username && u.password === password);
+        if (!user) { document.getElementById('authError').innerText = '❌ Неверный логин или пароль'; return; }
+        
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+        const sent = await sendTelegramCode(user.telegramId, code);
+        if (!sent) { document.getElementById('authError').innerText = '❌ Ошибка отправки кода'; return; }
+        
+        pendingLogin = { user, code, remember };
+        document.getElementById('loginForm').classList.add('hidden');
+        document.getElementById('codeVerifyBlock').classList.remove('hidden');
+        document.getElementById('codeError').innerHTML = '📨 Код отправлен в Telegram. Введите его.';
+    };
+    loginBtn.onclick = newLoginHandler;
+}
+
+// Модифицируем подтверждение кода для учёта "Запомнить меня"
+function patchCodeSubmit() {
+    const originalSubmit = document.getElementById('submitCode').click;
+    const submitBtn = document.getElementById('submitCode');
+    const newSubmitHandler = async () => {
+        const entered = document.getElementById('verificationCode').value.trim();
+        if (pendingLogin) {
+            if (entered !== pendingLogin.code) {
+                document.getElementById('codeError').innerText = '❌ Неверный код';
+                return;
+            }
+            currentUser = pendingLogin.user;
+            if (pendingLogin.remember) {
+                saveLoginSession(currentUser.username, currentUser.password);
+                localStorage.setItem('kdchd_trusted_' + currentUser.username, 'true');
+            }
+            pendingLogin = null;
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
+            renderProfileUI();
+            renderFeed();
+            navigateTo('feed');
+            showToast(`👋 Добро пожаловать, ${currentUser.username}!`, 'success');
+            document.getElementById('codeVerifyBlock').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+        } else if (pendingReg) {
+            if (entered !== pendingReg.code) {
+                document.getElementById('codeError').innerText = '❌ Неверный код';
+                return;
+            }
+            await database.ref('users').push({
+                username: pendingReg.username, password: pendingReg.password,
+                telegramId: pendingReg.telegramId, clanEmoji: pendingReg.clanEmoji,
+                clanName: pendingReg.clanName, regDate: new Date().toLocaleDateString(), avatar: null
+            });
+            showToast('🎉 Регистрация успешна! Войдите.', 'success');
+            document.getElementById('codeVerifyBlock').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+            pendingReg = null;
+            await loadUsers();
+        }
+    };
+    submitBtn.onclick = newSubmitHandler;
+}
+
+// Очищаем сессию при выходе
+function patchLogout() {
+    const logoutBtn = document.getElementById('logoutBtn');
+    const originalLogout = logoutBtn.onclick;
+    logoutBtn.onclick = () => {
+        if (currentUser) {
+            localStorage.removeItem('kdchd_trusted_' + currentUser.username);
+            clearLoginSession();
+        }
+        currentUser = null;
+        document.getElementById('mainContent').classList.add('hidden');
+        document.getElementById('authScreen').classList.remove('hidden');
+        showToast('До свидания! 👋');
+    };
+}
+
+// Запускаем всё после загрузки
+setTimeout(() => {
+    addRememberMeCheckbox();
+    patchLoginHandler();
+    patchCodeSubmit();
+    patchLogout();
+    autoLogin();
+}, 500);
     })();
 </script>
 </body>
